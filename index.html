@@ -156,4 +156,22 @@
 <a href="#">👤<br>Profile</a>
 
 </div>
+<script type="module">
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
+  authDomain: "rentdekho-90245.firebaseapp.com",
+  projectId: "rentdekho-90245",
+  storageBucket: "rentdekho-90245.firebasestorage.app",
+  messagingSenderId: "175577928788",
+  appId: "1:175577928788:web:0eac251ef0cfb7a99bc9c1",
+  measurementId: "G-0W05KHDTQ0"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+</script>
