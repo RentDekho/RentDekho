@@ -364,6 +364,13 @@ window.verifyOTP = function() {
     })
     .catch(err => alert("Invalid OTP!"));
 }
+  auth.onAuthStateChanged((user) => {
+  if (user) {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('content').style.filter = 'none';
+    document.getElementById('content').style.pointerEvents = 'auto';
+  }
+});
 </script>
 
 >>>>>>> 7860fe9be22764a9b436869b71d942c102e3f015
