@@ -8,7 +8,7 @@
 body{font-family:Arial;margin:0;background:#f5f5f5;}
 header{background:#ff6a00;color:white;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
 .hero{text-align:center;padding:40px 20px;background:white;}
-input{padding:10px;width:250px;border-radius:6px;border:1px solid #ccc;}
+input{padding:10px;width:250px;border-radius:6px;border:1px solid #ccc;margin-top:10px;}
 button{padding:10px 20px;border:none;background:#ff6a00;color:white;border-radius:6px;cursor:pointer;margin-top:10px;}
 .categories{display:flex;justify-content:center;gap:20px;padding:30px;flex-wrap:wrap;}
 .card{background:white;padding:20px;border-radius:10px;width:120px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
@@ -63,7 +63,6 @@ button{padding:10px 20px;border:none;background:#ff6a00;color:white;border-radiu
 
 </div>
 
-
 <div style="position:fixed;bottom:0;width:100%;background:white;border-top:1px solid #ccc;display:flex;justify-content:space-around;padding:10px 0;font-size:14px;">
 <a href="#">🏠<br>Home</a>
 <a href="#">🔍<br>Search</a>
@@ -71,7 +70,6 @@ button{padding:10px 20px;border:none;background:#ff6a00;color:white;border-radiu
 <a href="#">❤️<br>Saved</a>
 <a href="#">👤<br>Profile</a>
 </div>
-
 
 <!-- LOGIN MODAL -->
 
@@ -97,12 +95,10 @@ button{padding:10px 20px;border:none;background:#ff6a00;color:white;border-radiu
 
 </div>
 
-
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth,GoogleAuthProvider,signInWithPopup,signInWithPhoneNumber,RecaptchaVerifier,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
 const firebaseConfig = {
 apiKey:"AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -113,66 +109,38 @@ messagingSenderId:"175577928788",
 appId:"1:175577928788:web:0eac251ef0cfb7a99bc9c1"
 };
 
-const app=initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-const provider=new GoogleAuthProvider();
-
-
-window.recaptchaVerifier=new RecaptchaVerifier(
+window.recaptchaVerifier = new RecaptchaVerifier(
 "recaptcha-container",
 {size:"invisible"},
 auth
 );
 
-
 function closeLogin(){
-
 document.getElementById("loginModal").style.display="none";
 document.getElementById("content").style.filter="none";
-
 }
-
-document.getElementById("loginModal").style.display="block";
-document.getElementById("content").style.filter="blur(5px)";
-
-}
-}
-
-
 
 window.onload=function(){
-
 document.getElementById("loginModal").style.display="block";
 document.getElementById("content").style.filter="blur(5px)";
-document.getElementById("content").style.pointerEvents="none";
-
 }
-
-
 
 window.googleLogin=function(){
-
 signInWithPopup(auth,provider)
 .then((result)=>{
-
 alert("Welcome "+result.user.displayName);
 closeLogin();
-
 })
 .catch((error)=>{
-
 alert(error.message);
-console.log(error);
-
 });
-
 }
 
-
 window.confirmationResult=null;
-
-
 
 window.sendOTP=function(){
 
@@ -180,16 +148,14 @@ const phone=document.getElementById("phoneNumber").value;
 
 signInWithPhoneNumber(auth,phone,window.recaptchaVerifier)
 .then(result=>{
-
 window.confirmationResult=result;
-
 alert("OTP Sent");
-
+})
+.catch(error=>{
+alert(error.message);
 });
 
 }
-
-
 
 window.verifyOTP=function(){
 
@@ -197,25 +163,19 @@ const otp=document.getElementById("otp").value;
 
 window.confirmationResult.confirm(otp)
 .then(result=>{
-
 alert("Login Successful");
-
 closeLogin();
-
+})
+.catch(error=>{
+alert("Invalid OTP");
 });
 
 }
 
-
-
 onAuthStateChanged(auth,(user)=>{
-
 if(user){
-
 closeLogin();
-
 }
-
 });
 
 </script>
