@@ -124,25 +124,28 @@ window.googleLogin = function() {
     .catch(err => console.log(err));
 }
 
-// OTP login (test mode)
+// OTP login (real mode)
 window.sendOTP = function() {
   const phone = document.getElementById('phoneNumber').value;
   if(!phone){ alert("Enter phone number"); return; }
-  
-  alert("OTP sent! Use 696969 for testing.");
-  window.confirmationResult = {
-    confirm: function(otp) {
-      return new Promise((resolve, reject) => {
-        if(otp === "696969") resolve({ user: { phoneNumber: phone } });
-        else reject("Invalid OTP");
-      });
-    }
-  };
+
+  const appVerifier = window.recaptchaVerifier;
+
+  signInWithPhoneNumber(auth, phone, appVerifier)
+    .then(confirmationResult => {
+      window.confirmationResult = confirmationResult;
+      alert("OTP sent to " + phone);
+    })
+    .catch(error => {
+      console.log(error);
+      alert("Error sending OTP: " + error.message);
+    });
 }
 
 window.verifyOTP = function() {
   const otp = document.getElementById('otp').value;
   if(!window.confirmationResult){ alert("Send OTP first!"); return; }
+
   window.confirmationResult.confirm(otp)
     .then(result => {
       alert("Login successful: " + result.user.phoneNumber);
