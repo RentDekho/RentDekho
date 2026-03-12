@@ -1,109 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<<<<<<< HEAD
 <title>RentDekho</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-font-family:Arial,sans-serif;
-margin:0;
-background:#f5f5f5;
-}
-
-header{
-background:#ff6a00;
-color:white;
-padding:15px;
-text-align:center;
-font-size:24px;
-font-weight:bold;
-}
-
-.hero{
-text-align:center;
-padding:40px 20px;
-background:white;
-}
-
-input{
-padding:10px;
-width:250px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-button{
-padding:10px 20px;
-border:none;
-background:#ff6a00;
-color:white;
-border-radius:6px;
-cursor:pointer;
-margin-top:10px;
-}
-
-.categories{
-display:flex;
-justify-content:center;
-gap:20px;
-padding:30px;
-flex-wrap:wrap;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:10px;
-width:120px;
-text-align:center;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-.properties{
-padding:20px;
-}
-
-.property-card{
-background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-#loginModal{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:white;
-padding:25px;
-border-radius:10px;
-text-align:center;
-z-index:1000;
-box-shadow:0 4px 20px rgba(0,0,0,0.3);
-}
-
-#content{
-transition:filter 0.3s;
-}
-
-.bottom-nav{
-position:fixed;
-bottom:0;
-width:100%;
-background:white;
-border-top:1px solid #ccc;
-display:flex;
-justify-content:space-around;
-padding:10px 0;
-font-size:14px;
-}
+body{font-family:Arial;margin:0;background:#f5f5f5;}
+header{background:#ff6a00;color:white;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
+.hero{text-align:center;padding:40px 20px;background:white;}
+input{padding:10px;width:250px;border-radius:6px;border:1px solid #ccc;}
+button{padding:10px 20px;border:none;background:#ff6a00;color:white;border-radius:6px;cursor:pointer;margin-top:10px;}
+.categories{display:flex;justify-content:center;gap:20px;padding:30px;flex-wrap:wrap;}
+.card{background:white;padding:20px;border-radius:10px;width:120px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+.properties{padding:20px;}
+.property-card{background:white;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+#loginModal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;z-index:1000;border-radius:10px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+#content{transition:filter 0.3s;}
 </style>
-</head>
 
+</head>
 <body>
 
 <div id="content">
@@ -113,9 +28,7 @@ font-size:14px;
 <section class="hero">
 <h1>Your Perfect Home Is Just One Click Away</h1>
 <p>Find flats, rooms and houses without brokerage</p>
-
-<input type="text" placeholder="Search city or locality">
-<br>
+<input type="text" placeholder="Search city or locality"><br>
 <button>Search</button>
 </section>
 
@@ -127,6 +40,7 @@ font-size:14px;
 </section>
 
 <section class="properties">
+
 <h2>Trending Properties</h2>
 
 <div class="property-card">
@@ -146,9 +60,11 @@ font-size:14px;
 </div>
 
 </section>
+
 </div>
 
-<div class="bottom-nav">
+
+<div style="position:fixed;bottom:0;width:100%;background:white;border-top:1px solid #ccc;display:flex;justify-content:space-around;padding:10px 0;font-size:14px;">
 <a href="#">🏠<br>Home</a>
 <a href="#">🔍<br>Search</a>
 <a href="add-property.html">➕<br>Add</a>
@@ -156,15 +72,37 @@ font-size:14px;
 <a href="#">👤<br>Profile</a>
 </div>
 
+
+<!-- LOGIN MODAL -->
+
 <div id="loginModal">
+
 <h2>Login to RentDekho</h2>
+
+<input type="text" id="phoneNumber" placeholder="+91 9876543210">
+
+<div id="recaptcha-container"></div>
+
+<button onclick="sendOTP()">Send OTP</button>
+
+<br><br>
+
+<input type="text" id="otp" placeholder="Enter OTP">
+
+<button onclick="verifyOTP()">Verify OTP</button>
+
+<hr>
+
 <button onclick="googleLogin()">Login with Google</button>
+
 </div>
+
+
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getAuth,GoogleAuthProvider,signInWithPopup,signInWithPhoneNumber,RecaptchaVerifier,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
 const firebaseConfig = {
 apiKey:"AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -172,207 +110,107 @@ authDomain:"rentdekho-90245.firebaseapp.com",
 projectId:"rentdekho-90245",
 storageBucket:"rentdekho-90245.firebasestorage.app",
 messagingSenderId:"175577928788",
-appId:"1:175577928788:web:0eac251ef0cfb7a99bc9c1",
-measurementId:"G-0W05KHDTQ0"
+appId:"1:175577928788:web:0eac251ef0cfb7a99bc9c1"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+const app=initializeApp(firebaseConfig);
+const auth=getAuth();
 
-window.onload=function(){
-document.getElementById("loginModal").style.display="block";
-document.getElementById("content").style.filter="blur(5px)";
-document.getElementById("content").style.pointerEvents="none";
-}
+const provider=new GoogleAuthProvider();
+
+
+window.recaptchaVerifier=new RecaptchaVerifier(
+"recaptcha-container",
+{size:"invisible"},
+auth
+);
+
 
 function closeLogin(){
+
 document.getElementById("loginModal").style.display="none";
 document.getElementById("content").style.filter="none";
 document.getElementById("content").style.pointerEvents="auto";
+
 }
+
+
+
+window.onload=function(){
+
+document.getElementById("loginModal").style.display="block";
+document.getElementById("content").style.filter="blur(5px)";
+document.getElementById("content").style.pointerEvents="none";
+
+}
+
+
 
 window.googleLogin=function(){
+
 signInWithPopup(auth,provider)
-.then((result)=>{
+.then(result=>{
+
 alert("Welcome "+result.user.displayName);
+
 closeLogin();
+
 })
-.catch((error)=>{
-console.log(error);
-});
+.catch(err=>console.log(err));
+
 }
+
+
+
+window.confirmationResult=null;
+
+
+
+window.sendOTP=function(){
+
+const phone=document.getElementById("phoneNumber").value;
+
+signInWithPhoneNumber(auth,phone,window.recaptchaVerifier)
+.then(result=>{
+
+window.confirmationResult=result;
+
+alert("OTP Sent");
+
+});
+
+}
+
+
+
+window.verifyOTP=function(){
+
+const otp=document.getElementById("otp").value;
+
+window.confirmationResult.confirm(otp)
+.then(result=>{
+
+alert("Login Successful");
+
+closeLogin();
+
+});
+
+}
+
+
 
 onAuthStateChanged(auth,(user)=>{
+
 if(user){
+
 closeLogin();
+
 }
+
 });
 
 </script>
-=======
-  <title>RentDekho</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f5f5f5; }
-    header { background:#ff6a00; color:white; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
-    .hero { text-align:center; padding:40px 20px; background:white; }
-    input { padding:10px; width:250px; border-radius:6px; border:1px solid #ccc; }
-    button { padding:10px 20px; border:none; background:#ff6a00; color:white; border-radius:6px; cursor:pointer; margin-top:10px; }
-    .categories { display:flex; justify-content:center; gap:20px; padding:30px; flex-wrap:wrap; }
-    .card { background:white; padding:20px; border-radius:10px; width:120px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-    .properties { padding:20px; }
-    .property-card { background:white; padding:15px; margin-bottom:15px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-    #loginModal { position: fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; z-index:1000; border-radius:10px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
-    #content { transition: filter 0.3s; }
-  </style>
-</head>
-<body>
 
-<div id="content">
-  <header>RentDekho</header>
-
-  <section class="hero">
-    <h1>Your Perfect Home Is Just One Click Away</h1>
-    <p>Find flats, rooms and houses without brokerage</p>
-    <input type="text" placeholder="Search city or locality"><br>
-    <button>Search</button>
-  </section>
-
-  <section class="categories">
-    <div class="card">Flat</div>
-    <div class="card">Room</div>
-    <div class="card">PG</div>
-    <div class="card">House</div>
-  </section>
-
-  <section class="properties">
-    <h2>Trending Properties</h2>
-    <div class="property-card">
-      <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2" width="100%" style="border-radius:8px;">
-      <h3>2BHK Flat</h3>
-      <p>📍 Agartala</p>
-      <p>💰 ₹8000/month</p>
-      <button>View Details</button>
-    </div>
-    <div class="property-card">
-      <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae" width="100%" style="border-radius:8px;">
-      <h3>Single Room</h3>
-      <p>📍 Udaipur</p>
-      <p>💰 ₹3000/month</p>
-      <button>View Details</button>
-    </div>
-  </section>
-</div>
-
-<div style="position:fixed;bottom:0;width:100%;background:white;border-top:1px solid #ccc;display:flex;justify-content:space-around;padding:10px 0;font-size:14px;">
-  <a href="#">🏠<br>Home</a>
-  <a href="#">🔍<br>Search</a>
-  <a href="add-property.html">➕<br>Add</a>
-  <a href="#">❤️<br>Saved</a>
-  <a href="#">👤<br>Profile</a>
-</div>
-
-<!-- Login Modal -->
-<div id="loginModal">
-  <h2>Login to RentDekho</h2>
-  <input type="text" id="phoneNumber" placeholder="+91 9876543210">
-  <div id="recaptcha-container"></div>
-  <button onclick="sendOTP()">Send OTP</button>
-  <input type="text" id="otp" placeholder="Enter OTP">
-  <button onclick="verifyOTP()">Verify OTP</button>
-  <hr>
-  <button onclick="googleLogin()">Login with Google</button>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-
-// -------------------- Firebase Config --------------------
-const firebaseConfig = {
-  apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
-  authDomain: "rentdekho-90245.firebaseapp.com",
-  projectId: "rentdekho-90245",
-  storageBucket: "rentdekho-90245.firebasestorage.app",
-  messagingSenderId: "175577928788",
-  appId: "1:175577928788:web:0eac251ef0cfb7a99bc9c1",
-  measurementId: "G-0W05KHDTQ0"
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
-
-// -------------------- reCAPTCHA for Phone OTP --------------------
-window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-  'size': 'invisible',
-  'callback': (response) => { console.log("reCAPTCHA verified"); }
-}, auth);
-
-// -------------------- Modal Blur --------------------
-window.onload = function() {
-  document.getElementById('loginModal').style.display = 'block';
-  document.getElementById('content').style.filter = 'blur(5px)';
-  document.getElementById('content').style.pointerEvents = 'none';
-}
-
-function closeLogin() {
-  document.getElementById('loginModal').style.display = 'none';
-  document.getElementById('content').style.filter = 'none';
-  document.getElementById('content').style.pointerEvents = 'auto';
-}
-
-// -------------------- Google Login --------------------
-window.googleLogin = function() {
-  signInWithPopup(auth, provider)
-    .then(result => {
-      alert("Welcome " + result.user.displayName);
-      closeLogin();
-    })
-    .catch(err => console.log(err));
-}
-
-// -------------------- Phone OTP Login --------------------
-window.confirmationResult = null;
-
-window.sendOTP = function() {
-  const phone = document.getElementById('phoneNumber').value;
-  if(!phone){ alert("Enter phone number"); return; }
-
-  signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-    .then(result => {
-      window.confirmationResult = result;
-      alert("OTP sent to " + phone);
-    })
-    .catch(error => {
-      console.log(error);
-      alert("Error sending OTP: " + error.message);
-    });
-}
-
-window.verifyOTP = function() {
-  const otp = document.getElementById('otp').value;
-  if(!window.confirmationResult){ alert("Send OTP first!"); return; }
-
-  window.confirmationResult.confirm(otp)
-    .then(result => {
-      alert("Login successful: " + result.user.phoneNumber);
-      closeLogin();
-    })
-    .catch(err => alert("Invalid OTP!"));
-}
-  auth.onAuthStateChanged((user) => {
-  if (user) {
-    document.getElementById('loginModal').style.display = 'none';
-    document.getElementById('content').style.filter = 'none';
-    document.getElementById('content').style.pointerEvents = 'auto';
-  }
-});
-</script>
-
->>>>>>> 7860fe9be22764a9b436869b71d942c102e3f015
 </body>
 </html>
