@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Property Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+padding:20px;
+background:#f5f5f5;
+}
+
+img{
+width:100%;
+border-radius:10px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<img id="image">
+
+<h2 id="title"></h2>
+
+<p id="city"></p>
+
+<p id="price"></p>
+
+<p id="desc"></p>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey:"AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
+authDomain:"rentdekho-90245.firebaseapp.com",
+projectId:"rentdekho-90245",
+storageBucket:"rentdekho-90245.firebasestorage.app",
+messagingSenderId:"175577928788",
+appId:"1:175577928788:web:0eac251ef0cfb7a99bc9c1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const urlParams = new URLSearchParams(window.location.search);
+const id = urlParams.get("id");
+
+async function loadProperty(){
+
+const docRef = doc(db,"properties",id);
+const docSnap = await getDoc(docRef);
+
+if(docSnap.exists()){
+
+const data = docSnap.data();
+
+document.getElementById("image").src=data.image
+document.getElementById("title").innerText=data.title
+document.getElementById("city").innerText="📍 "+data.city
+document.getElementById("price").innerText="💰 ₹"+data.price
+document.getElementById("desc").innerText=data.desc
+
+}
+
+}
+
+loadProperty()
+
+</script>
+
+</body>
+</html>
