@@ -240,7 +240,7 @@ querySnapshot.forEach((doc)=>{
 const data=doc.data()
 
 const card=`
-<div class="property-card">
+<div class="property-card" onclick="openProperty('${doc.id}')">
 <img src="${data.image}" width="100%" style="border-radius:8px;">
 <h3>${data.title}</h3>
 <p>📍 ${data.city}</p>
@@ -251,6 +251,11 @@ const card=`
 document.getElementById("propertyList").innerHTML+=card
 
 })
+
+}
+  window.openProperty=function(id){
+
+window.location="property.html?id="+id
 
 }
 
