@@ -258,13 +258,12 @@ const data = doc.data()
 
 const card = `
 <div class="property-card" onclick="openProperty('${doc.id}')">
-<img src="${data.image}">
+<img src="${data.image}" style="width:100%;border-radius:8px;">
 <h3>${data.title}</h3>
 <p>📍 ${data.address}</p>
 <p>💰 ₹${data.price}</p>
 </div>
 `;
-
 document.getElementById("propertyList").innerHTML += card
 
 })
