@@ -255,7 +255,7 @@ const querySnapshot = await getDocs(collection(db,"properties"));
 querySnapshot.forEach((doc)=>{
 
 const data = doc.data()
-
+console.log("Firestore data:", data)
 const card = `
 <div class="property-card" onclick="openProperty('${doc.id}')">
 <img src="${data.image}" style="width:100%;border-radius:8px;">
