@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:Arial;margin:0;background:#f5f5f5;}
+
+body{
+font-family:Arial;
+margin:0;
+background:#f5f5f5;
+}
+
+/* header */
 
 header{
 background:#ff6a00;
@@ -16,20 +23,23 @@ font-size:24px;
 font-weight:bold;
 }
 
+/* hero banner */
+
 .hero{
+background:#0000FF;
+color:white;
 text-align:center;
-padding:40px 20px;
-background:white;
+padding:50px 20px;
 }
 
-input{
+.hero input{
 padding:10px;
 width:250px;
 border-radius:6px;
 border:1px solid #ccc;
 }
 
-button{
+.hero button{
 padding:10px 20px;
 border:none;
 background:#ff6a00;
@@ -38,6 +48,8 @@ border-radius:6px;
 cursor:pointer;
 margin-top:10px;
 }
+
+/* categories */
 
 .categories{
 display:flex;
@@ -56,6 +68,8 @@ text-align:center;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
+/* properties */
+
 .properties{
 padding:20px;
 }
@@ -67,6 +81,8 @@ margin-bottom:15px;
 border-radius:10px;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
+
+/* login modal */
 
 #loginModal{
 position:fixed;
@@ -84,9 +100,10 @@ box-shadow:0 4px 20px rgba(0,0,0,0.3);
 #content{
 transition:filter 0.3s;
 }
-</style>
 
+</style>
 </head>
+
 <body>
 
 <div id="content">
@@ -97,7 +114,8 @@ transition:filter 0.3s;
 <h1>Your Perfect Home Is Just One Click Away</h1>
 <p>Find flats, rooms and houses without brokerage</p>
 
-<input type="text" placeholder="Search city or locality"><br>
+<input type="text" placeholder="Search city or locality"><br><br>
+
 <button>Search</button>
 </section>
 
@@ -131,6 +149,7 @@ transition:filter 0.3s;
 </section>
 
 </div>
+
 
 <!-- bottom nav -->
 
@@ -168,7 +187,6 @@ transition:filter 0.3s;
 </div>
 
 
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -187,66 +205,52 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-
 function closeLogin(){
 document.getElementById("loginModal").style.display="none";
 document.getElementById("content").style.filter="none";
 document.getElementById("content").style.pointerEvents="auto";
 }
 
-
-window.onload = function(){
+window.onload=function(){
 
 document.getElementById("loginModal").style.display="block";
 document.getElementById("content").style.filter="blur(5px)";
 document.getElementById("content").style.pointerEvents="none";
 
-window.recaptchaVerifier = new RecaptchaVerifier(
+window.recaptchaVerifier=new RecaptchaVerifier(
 "recaptcha-container",
 {size:"invisible"},
 auth
 );
 
-};
+}
 
-
-window.googleLogin = function(){
+window.googleLogin=function(){
 
 signInWithPopup(auth,provider)
 .then((result)=>{
-
 alert("Welcome "+result.user.displayName);
 closeLogin();
-
 })
 .catch((error)=>{
-
 alert(error.message);
-console.log(error);
-
 });
 
-};
+}
 
+window.confirmationResult=null;
 
-window.confirmationResult = null;
-
-
-window.sendOTP = function(){
+window.sendOTP=function(){
 
 const phone=document.getElementById("phoneNumber").value;
 
 signInWithPhoneNumber(auth,phone,window.recaptchaVerifier)
 .then(result=>{
-
 window.confirmationResult=result;
-
 alert("OTP Sent");
-
 });
 
-};
-
+}
 
 window.verifyOTP=function(){
 
@@ -254,32 +258,19 @@ const otp=document.getElementById("otp").value;
 
 window.confirmationResult.confirm(otp)
 .then(result=>{
-
 alert("Login Successful");
-
 closeLogin();
-
 });
-
-};
-
-
-onAuthStateChanged(auth,(user)=>{
-
-if(user){
-
-closeLogin();
 
 }
 
+onAuthStateChanged(auth,(user)=>{
+if(user){
+closeLogin();
+}
 });
 
 </script>
 
 </body>
 </html>
-<<<<<<< HEAD
-<!-- update test -->
- <!-- test change -->
-=======
->>>>>>> cca98b173ea65d32e7a1b0bb5b35f0ac8549a435
