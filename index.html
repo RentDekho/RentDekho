@@ -202,11 +202,9 @@ window.onload=function(){
 document.getElementById("loginModal").style.display="block";
 document.getElementById("content").style.filter="blur(5px)";
 
-window.recaptchaVerifier=new RecaptchaVerifier(
-"recaptcha-container",
-{size:"invisible"},
-auth
-);
+window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+  size: "invisible"
+});
 
 loadProperties()
 
