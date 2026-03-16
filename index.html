@@ -319,7 +319,7 @@
           closeLogin();
         })
         .catch((error) => {
-          console.error(error);
+          console.error("Google login error:", error);
           alert("Google login failed");
         });
     };
@@ -335,7 +335,7 @@
           alert("OTP Sent");
         })
         .catch((error) => {
-          console.error(error);
+          console.error("OTP send error:", error);
           alert("OTP send failed");
         });
     };
@@ -354,7 +354,7 @@
           closeLogin();
         })
         .catch((error) => {
-          console.error(error);
+          console.error("OTP verify error:", error);
           alert("Invalid OTP");
         });
     };
@@ -367,8 +367,11 @@
         const querySnapshot = await getDocs(collection(db, "properties"));
         allProperties = [];
 
+        console.log("Total docs in Firestore:", querySnapshot.size);
+
         querySnapshot.forEach((doc) => {
           const data = doc.data();
+          console.log("Each property data:", doc.id, data);
 
           if (data.status === "approved") {
             allProperties.push({
@@ -377,6 +380,9 @@
             });
           }
         });
+
+        console.log("Approved properties count:", allProperties.length);
+        console.log("Approved properties list:", allProperties);
 
         applyFilters();
       } catch (error) {
