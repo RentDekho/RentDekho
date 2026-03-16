@@ -85,7 +85,8 @@
 
     <form id="propertyForm">
       <label for="title">Property Title</label>
-    <input type="text" id="title">
+      <input type="text" id="title" required>
+
       <label for="type">Property Type</label>
       <select id="type" required>
         <option value="">Select Type</option>
@@ -97,25 +98,25 @@
       </select>
 
       <label for="city">City</label>
-      <input type="text" id="city" placeholder="Example: Agartala" required>
+      <input type="text" id="city" required>
 
       <label for="address">Address / Area</label>
-      <input type="text" id="address" placeholder="Example: Battala Near Railway Station" required>
+      <input type="text" id="address" required>
 
       <label for="price">Monthly Rent Price</label>
-      <input type="number" id="price" placeholder="Example: 4000" required>
+      <input type="number" id="price" required>
 
       <label for="owner">Owner Name</label>
-      <input type="text" id="owner" placeholder="Enter owner name" required>
+      <input type="text" id="owner" required>
 
       <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" placeholder="Enter phone number" required>
+      <input type="tel" id="phone" required>
 
       <label for="image">Property Image URL</label>
-      <input type="url" id="image" placeholder="Paste direct image link here" required>
+      <input type="url" id="image" required>
 
       <label for="desc">Description</label>
-      <textarea id="desc" placeholder="Example: Spacious room with attached bathroom" required></textarea>
+      <textarea id="desc" required></textarea>
 
       <button type="submit">Submit Property</button>
 
