@@ -369,10 +369,13 @@
 
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          allProperties.push({
-            id: doc.id,
-            ...data
-          });
+
+          if (data.status === "approved") {
+            allProperties.push({
+              id: doc.id,
+              ...data
+            });
+          }
         });
 
         applyFilters();
