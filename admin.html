@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel</title>
+<style>
+
+body{
+font-family: Arial;
+background:#f5f5f5;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:15px;
+margin-bottom:15px;
+border-radius:8px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+button{
+padding:6px 10px;
+margin-top:5px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Admin Property Control</h2>
+
+<div id="propertyList"></div>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+updateDoc,
+doc,
+deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "YOUR_KEY",
+authDomain: "YOUR_DOMAIN",
+projectId: "YOUR_PROJECT",
+storageBucket: "YOUR_BUCKET",
+messagingSenderId: "YOUR_ID",
+appId: "YOUR_APP_ID"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+async function loadProperties(){
+
+const querySnapshot = await getDocs(collection(db,"properties"));
+
+const container = document.getElementById("propertyList");
+
+container.innerHTML = "";
+
+querySnapshot.forEach((docSnap)=>{
+
+const data = docSnap.data();
+const id = docSnap.id;
+
+const status = data.status || "pending";
+
+const div = document.createElement("div");
+div.className = "card";
+
+div.innerHTML = `
+
+<h3>${data.title}</h3>
+
+<p>City: ${data.city}</p>
+
+<p>Price: ${data.price}</p>
+
+<select id="status-${id}">
+<option value="pending" ${status==="pending"?"selected":""}>Pending</option>
+<option value="approved" ${status==="approved"?"selected":""}>Approved</option>
+</select>
+
+<br><br>
+
+<button onclick="updateStatus('${id}')">Update</button>
+
+<button onclick="deleteProperty('${id}')">Delete</button>
+
+`;
+
+container.appendChild(div);
+
+});
+
+}
+
+window.updateStatus = async function(id){
+
+const newStatus = document.getElementById("status-"+id).value;
+
+await updateDoc(doc(db,"properties",id),{
+
+status:newStatus
+
+});
+
+alert("Status Updated");
+
+loadProperties();
+
+}
+
+window.deleteProperty = async function(id){
+
+if(confirm("Delete property?")){
+
+await deleteDoc(doc(db,"properties",id));
+
+alert("Deleted");
+
+loadProperties();
+
+}
+
+}
+
+loadProperties();
+
+</script>
+
+</body>
+</html>
