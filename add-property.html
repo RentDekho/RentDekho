@@ -254,13 +254,17 @@
           phone: phone,
           image: finalImageData,
           desc: desc,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          status: "pending",
+          verified: false,
+          displayOrder: 999
         });
 
-        statusDiv.innerText = "Property added successfully!";
+        statusDiv.innerText = "Property submitted successfully! It is pending for approval.";
         statusDiv.style.color = "green";
 
-        alert("Property added successfully!");
+        alert("Property submitted successfully! It is pending for approval.");
+
         form.reset();
         preview.style.display = "none";
         finalImageData = "";
