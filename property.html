@@ -119,11 +119,11 @@
           document.getElementById("phone").innerText = "📞 Phone: " + (data.phone || "No Phone Number");
           document.getElementById("type").innerText = "🏠 Type: " + (data.type || "No Type");
 
-          if (data.image && data.image.startsWith("http")) {
-            document.getElementById("image").src = data.image;
-          } else {
-            document.getElementById("image").src = "https://via.placeholder.com/500x250?text=No+Image";
-          }
+         if (data.image) {
+  document.getElementById("image").src = data.image;
+} else {
+  document.getElementById("image").src = "https://via.placeholder.com/600x280?text=No+Image";
+}
 
           if (data.phone) {
             document.getElementById("callBtn").href = "tel:" + data.phone;
