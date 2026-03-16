@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Property Details - RentDekho</title>
+  <title>Add Property - RentDekho</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -13,8 +13,52 @@
     }
 
     .container{
-      max-width: 600px;
+      max-width: 500px;
       margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+
+    h2{
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1a73e8;
+    }
+
+    label{
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, select, textarea{
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+
+    textarea{
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button{
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border: none;
+      background: #1a73e8;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
     .back-link{
@@ -25,90 +69,64 @@
       font-weight: bold;
     }
 
-    .card{
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    img{
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
-      border-radius: 10px;
-      background: #eee;
-      margin-bottom: 15px;
-    }
-
-    h2{
-      margin-top: 0;
-      margin-bottom: 10px;
-      color: #222;
-    }
-
-    p{
-      font-size: 16px;
-      color: #333;
-      margin: 10px 0;
-      line-height: 1.5;
-    }
-
-    .btn{
-      display: inline-block;
+    #status{
       margin-top: 15px;
-      padding: 12px 18px;
-      background: #1a73e8;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-
-    .error{
       text-align: center;
-      color: red;
-      font-weight: bold;
-      margin-top: 30px;
-    }
-
-    .loading{
-      text-align: center;
-      color: #555;
-      margin-top: 30px;
       font-weight: bold;
     }
   </style>
 </head>
-
 <body>
 
   <div class="container">
     <a href="index.html" class="back-link">← Back to Home</a>
 
-    <div class="loading" id="loadingMessage">Loading property...</div>
+    <h2>Add Your Property</h2>
 
-    <div class="card" id="propertyCard" style="display:none;">
-      <img id="image" src="" alt="Property Image">
+    <form id="propertyForm">
+      <label for="title">Property Title</label>
+      <input type="text" id="title" placeholder="Example: 1BHK, Single Room" required>
 
-      <h2 id="title"></h2>
+      <label for="type">Property Type</label>
+      <select id="type" required>
+        <option value="">Select Type</option>
+        <option value="Room">Room</option>
+        <option value="Flat">Flat</option>
+        <option value="House">House</option>
+        <option value="PG">PG</option>
+        <option value="Shop">Shop</option>
+      </select>
 
-      <p id="location"></p>
-      <p id="price"></p>
-      <p id="type"></p>
-      <p id="owner"></p>
-      <p id="phone"></p>
-      <p id="desc"></p>
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="Example: Agartala" required>
 
-      <a id="callBtn" class="btn" href="#">Call Owner</a>
-    </div>
+      <label for="address">Address / Area</label>
+      <input type="text" id="address" placeholder="Example: Battala Near Railway Station" required>
 
-    <div class="error" id="errorMessage"></div>
+      <label for="price">Monthly Rent Price</label>
+      <input type="number" id="price" placeholder="Example: 4000" required>
+
+      <label for="owner">Owner Name</label>
+      <input type="text" id="owner" placeholder="Enter owner name" required>
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" placeholder="Enter phone number" required>
+
+      <label for="image">Property Image URL</label>
+      <input type="url" id="image" placeholder="Paste direct image link here" required>
+
+      <label for="desc">Description</label>
+      <textarea id="desc" placeholder="Example: Spacious room with attached bathroom" required></textarea>
+
+      <button type="submit">Submit Property</button>
+
+      <div id="status"></div>
+    </form>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -122,62 +140,48 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
+    const form = document.getElementById("propertyForm");
+    const statusDiv = document.getElementById("status");
 
-    async function loadProperty() {
-      const loadingMessage = document.getElementById("loadingMessage");
-      const errorMessage = document.getElementById("errorMessage");
-      const propertyCard = document.getElementById("propertyCard");
+    form.addEventListener("submit", async function(e){
+      e.preventDefault();
 
-      if (!id) {
-        loadingMessage.style.display = "none";
-        errorMessage.innerText = "Property ID not found in URL.";
-        return;
-      }
+      const title = document.getElementById("title").value.trim();
+      const type = document.getElementById("type").value;
+      const city = document.getElementById("city").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const owner = document.getElementById("owner").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const image = document.getElementById("image").value.trim();
+      const desc = document.getElementById("desc").value.trim();
 
       try {
-        const docRef = doc(db, "properties", id);
-        const docSnap = await getDoc(docRef);
+        await addDoc(collection(db, "properties"), {
+          title: title,
+          type: type,
+          city: city,
+          address: address,
+          price: price,
+          owner: owner,
+          phone: phone,
+          image: image,
+          desc: desc,
+          createdAt: new Date().toISOString()
+        });
 
-        loadingMessage.style.display = "none";
+        statusDiv.innerText = "Property added successfully!";
+        statusDiv.style.color = "green";
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-
-          document.getElementById("title").innerText = data.title || "No Title";
-          document.getElementById("location").innerText = "📍 " + (data.address || "No Address") + ", " + (data.city || "No City");
-          document.getElementById("price").innerText = "💰 ₹" + (data.price || "No Price");
-          document.getElementById("type").innerText = "🏠 Type: " + (data.type || "No Type");
-          document.getElementById("owner").innerText = "👤 Owner: " + (data.owner || "No Owner Name");
-          document.getElementById("phone").innerText = "📞 Phone: " + (data.phone || "No Phone Number");
-          document.getElementById("desc").innerText = "📝 " + (data.desc || "No Description");
-
-          if (data.image && data.image.startsWith("http")) {
-            document.getElementById("image").src = data.image;
-          } else {
-            document.getElementById("image").src = "https://via.placeholder.com/600x280?text=No+Image";
-          }
-
-          if (data.phone) {
-            document.getElementById("callBtn").href = "tel:" + data.phone;
-            document.getElementById("callBtn").style.display = "inline-block";
-          } else {
-            document.getElementById("callBtn").style.display = "none";
-          }
-
-          propertyCard.style.display = "block";
-        } else {
-          errorMessage.innerText = "Property not found.";
-        }
+        alert("Property added successfully!");
+        form.reset();
+        window.location.href = "index.html";
       } catch (error) {
-        console.error("Error loading property:", error);
-        loadingMessage.style.display = "none";
-        errorMessage.innerText = "Error loading property. Check console.";
+        console.error(error);
+        statusDiv.innerText = "Error saving property.";
+        statusDiv.style.color = "red";
       }
-    }
-
-    loadProperty();
+    });
   </script>
 
 </body>
