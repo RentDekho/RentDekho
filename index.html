@@ -258,7 +258,7 @@ const card = `
 <div class="property-card" onclick="openProperty('${doc.id}')">
 <img src="${data.image}" style="width:100%;border-radius:8px;">
 <h3>${data.title}</h3>
-<p>📍 ${data.address}</p>
+<p>📍 ${data.address || data.city}</p>
 <p>💰 ₹${data.price}</p>
 </div>
 `;
