@@ -128,20 +128,32 @@
       position: relative;
     }
 
-    ..trending-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: #ff5e00;
-  color: white;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  border-radius: 20px;
-  z-index: 5;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-}
+    .trending-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 94, 0, 0.96);
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 20px;
+      z-index: 5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.22);
+      line-height: 1;
+    }
+
+    .trending-badge .fire {
+      font-size: 14px;
+    }
+
+    .trending-badge .text {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
 
     .property-card img {
       width: 100%;
@@ -404,12 +416,6 @@
           }
         });
 
-        allProperties.sort((a, b) => {
-          const orderA = Number(a.displayOrder) || 999;
-          const orderB = Number(b.displayOrder) || 999;
-          return orderA - orderB;
-        });
-
         applyFilters();
       } catch (error) {
         console.error("Error loading properties:", error);
@@ -439,9 +445,9 @@
           ? data.address + ", " + data.city
           : (data.address || data.city || "No Location");
 
-       const badge = data.trending === true
-  ? `<div class="trending-badge">TRENDING</div>`
-  : "";
+        const badge = data.trending === true
+          ? `<div class="trending-badge"><span class="fire">🔥</span><span class="text">Trending</span></div>`
+          : "";
 
         const card = `
           <div class="property-card ${data.trending === true ? "trending" : ""}" onclick="openProperty('${data.id}')">
