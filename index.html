@@ -1,4 +1,4 @@
-yeh jo code main change haina na vho to index.html hoga na? to tu mujhe pura code dede. yeh raha purana code.<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -115,6 +115,30 @@ yeh jo code main change haina na vho to index.html hoga na? to tu mujhe pura cod
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .property-card.trending {
+      border: 2px solid #ff5e00;
+      box-shadow: 0 4px 15px rgba(255,94,0,0.25);
+      transform: scale(1.01);
+    }
+
+    .image-wrapper {
+      position: relative;
+    }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #ff5e00;
+      color: white;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      z-index: 2;
     }
 
     .property-card img {
@@ -367,24 +391,24 @@ yeh jo code main change haina na vho to index.html hoga na? to tu mujhe pura cod
         const querySnapshot = await getDocs(collection(db, "properties"));
         allProperties = [];
 
-querySnapshot.forEach((doc) => {
-  const data = doc.data();
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
 
-  if ((data.status || "").trim().toLowerCase() === "approved") {
-    allProperties.push({
-      id: doc.id,
-      ...data
-    });
-  }
-});
+          if ((data.status || "").trim().toLowerCase() === "approved") {
+            allProperties.push({
+              id: doc.id,
+              ...data
+            });
+          }
+        });
 
-allProperties.sort((a, b) => {
-  const orderA = Number(a.displayOrder) || 999;
-  const orderB = Number(b.displayOrder) || 999;
-  return orderA - orderB;
-});
+        allProperties.sort((a, b) => {
+          const orderA = Number(a.displayOrder) || 999;
+          const orderB = Number(b.displayOrder) || 999;
+          return orderA - orderB;
+        });
 
-applyFilters();
+        applyFilters();
       } catch (error) {
         console.error("Error loading properties:", error);
         propertyList.innerHTML = "<p>Properties load nahi hui.</p>";
@@ -413,9 +437,16 @@ applyFilters();
           ? data.address + ", " + data.city
           : (data.address || data.city || "No Location");
 
+        const badge = data.trending === true
+          ? `<div class="badge">🔥 Trending</div>`
+          : "";
+
         const card = `
-          <div class="property-card" onclick="openProperty('${data.id}')">
-            <img src="${imageSrc}" alt="Property Image">
+          <div class="property-card ${data.trending === true ? "trending" : ""}" onclick="openProperty('${data.id}')">
+            <div class="image-wrapper">
+              ${badge}
+              <img src="${imageSrc}" alt="Property Image">
+            </div>
             <h3>${data.title || "No Title"}</h3>
             <p>📍 ${locationText}</p>
             <p>💰 ₹${data.price || "N/A"}</p>
@@ -426,72 +457,64 @@ applyFilters();
       });
     }
 
-  function applyFilters() {
-  const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
-  const resultText = document.getElementById("resultText");
+    function applyFilters() {
+      const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
+      const resultText = document.getElementById("resultText");
 
-  let filteredProperties = [...allProperties];
+      let filteredProperties = [...allProperties];
 
-  // category filter
-  if (selectedCategory !== "") {
-    filteredProperties = filteredProperties.filter((property) => {
-      const type = (property.type || "").toLowerCase();
-      return type === selectedCategory.toLowerCase();
-    });
-  }
+      if (selectedCategory !== "") {
+        filteredProperties = filteredProperties.filter((property) => {
+          const type = (property.type || "").toLowerCase();
+          return type === selectedCategory.toLowerCase();
+        });
+      }
 
-  // search filter
-  if (searchText !== "") {
-    filteredProperties = filteredProperties.filter((property) => {
-      const title = (property.title || "").toLowerCase();
-      const city = (property.city || "").toLowerCase();
-      const address = (property.address || "").toLowerCase();
-      const type = (property.type || "").toLowerCase();
+      if (searchText !== "") {
+        filteredProperties = filteredProperties.filter((property) => {
+          const title = (property.title || "").toLowerCase();
+          const city = (property.city || "").toLowerCase();
+          const address = (property.address || "").toLowerCase();
+          const type = (property.type || "").toLowerCase();
 
-      return (
-        title.includes(searchText) ||
-        city.includes(searchText) ||
-        address.includes(searchText) ||
-        type.includes(searchText)
-      );
-    });
-  }
+          return (
+            title.includes(searchText) ||
+            city.includes(searchText) ||
+            address.includes(searchText) ||
+            type.includes(searchText)
+          );
+        });
+      }
 
-  // pehle matching trending properties
-  let trendingProperties = filteredProperties.filter((property) => property.trending === true);
+      let trendingProperties = filteredProperties.filter((property) => property.trending === true);
+      let normalProperties = filteredProperties.filter((property) => property.trending !== true);
 
-  // phir matching non-trending properties
-  let normalProperties = filteredProperties.filter((property) => property.trending !== true);
+      trendingProperties.sort((a, b) => {
+        const orderA = Number(a.displayOrder) || 999;
+        const orderB = Number(b.displayOrder) || 999;
+        return orderA - orderB;
+      });
 
-  // trending ko displayOrder ke hisaab se sort
-  trendingProperties.sort((a, b) => {
-    const orderA = Number(a.displayOrder) || 999;
-    const orderB = Number(b.displayOrder) || 999;
-    return orderA - orderB;
-  });
+      normalProperties.sort((a, b) => {
+        const orderA = Number(a.displayOrder) || 999;
+        const orderB = Number(b.displayOrder) || 999;
+        return orderA - orderB;
+      });
 
-  // non-trending ko displayOrder ke hisaab se sort
-  normalProperties.sort((a, b) => {
-    const orderA = Number(a.displayOrder) || 999;
-    const orderB = Number(b.displayOrder) || 999;
-    return orderA - orderB;
-  });
+      const finalProperties = [...trendingProperties, ...normalProperties];
 
-  // final list: pehle trending, phir normal
-  const finalProperties = [...trendingProperties, ...normalProperties];
+      renderProperties(finalProperties);
 
-  renderProperties(finalProperties);
-
-  if (selectedCategory && searchText) {
-    resultText.innerText = "Showing " + selectedCategory + " results for: " + searchText;
-  } else if (selectedCategory) {
-    resultText.innerText = "Showing: " + selectedCategory;
-  } else if (searchText) {
-    resultText.innerText = "Search result for: " + searchText;
-  } else {
-    resultText.innerText = "";
-  }
-}
+      if (selectedCategory && searchText) {
+        resultText.innerText = "Showing " + selectedCategory + " results for: " + searchText;
+      } else if (selectedCategory) {
+        resultText.innerText = "Showing: " + selectedCategory;
+      } else if (searchText) {
+        resultText.innerText = "Search result for: " + searchText;
+      } else {
+        resultText.innerText = "";
+      }
+    }
 
     window.searchProperties = function () {
       applyFilters();
@@ -505,7 +528,7 @@ applyFilters();
       const cards = document.querySelectorAll(".card");
       cards.forEach((card) => card.classList.remove("active"));
 
-      renderProperties(allProperties);
+      applyFilters();
     };
 
     window.filterByCategory = function (category, clickedCard) {
