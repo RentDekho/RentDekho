@@ -426,47 +426,72 @@ applyFilters();
       });
     }
 
-    function applyFilters() {
-      const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
-      const resultText = document.getElementById("resultText");
+  function applyFilters() {
+  const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
+  const resultText = document.getElementById("resultText");
 
-      let filteredProperties = [...allProperties];
+  let filteredProperties = [...allProperties];
 
-      if (selectedCategory !== "") {
-        filteredProperties = filteredProperties.filter((property) => {
-          const type = (property.type || "").toLowerCase();
-          return type === selectedCategory.toLowerCase();
-        });
-      }
+  // category filter
+  if (selectedCategory !== "") {
+    filteredProperties = filteredProperties.filter((property) => {
+      const type = (property.type || "").toLowerCase();
+      return type === selectedCategory.toLowerCase();
+    });
+  }
 
-      if (searchText !== "") {
-        filteredProperties = filteredProperties.filter((property) => {
-          const title = (property.title || "").toLowerCase();
-          const city = (property.city || "").toLowerCase();
-          const address = (property.address || "").toLowerCase();
-          const type = (property.type || "").toLowerCase();
+  // search filter
+  if (searchText !== "") {
+    filteredProperties = filteredProperties.filter((property) => {
+      const title = (property.title || "").toLowerCase();
+      const city = (property.city || "").toLowerCase();
+      const address = (property.address || "").toLowerCase();
+      const type = (property.type || "").toLowerCase();
 
-          return (
-            title.includes(searchText) ||
-            city.includes(searchText) ||
-            address.includes(searchText) ||
-            type.includes(searchText)
-          );
-        });
-      }
+      return (
+        title.includes(searchText) ||
+        city.includes(searchText) ||
+        address.includes(searchText) ||
+        type.includes(searchText)
+      );
+    });
+  }
 
-      renderProperties(filteredProperties);
+  // pehle matching trending properties
+  let trendingProperties = filteredProperties.filter((property) => property.trending === true);
 
-      if (selectedCategory && searchText) {
-        resultText.innerText = "Showing " + selectedCategory + " results for: " + searchText;
-      } else if (selectedCategory) {
-        resultText.innerText = "Showing: " + selectedCategory;
-      } else if (searchText) {
-        resultText.innerText = "Search result for: " + searchText;
-      } else {
-        resultText.innerText = "";
-      }
-    }
+  // phir matching non-trending properties
+  let normalProperties = filteredProperties.filter((property) => property.trending !== true);
+
+  // trending ko displayOrder ke hisaab se sort
+  trendingProperties.sort((a, b) => {
+    const orderA = Number(a.displayOrder) || 999;
+    const orderB = Number(b.displayOrder) || 999;
+    return orderA - orderB;
+  });
+
+  // non-trending ko displayOrder ke hisaab se sort
+  normalProperties.sort((a, b) => {
+    const orderA = Number(a.displayOrder) || 999;
+    const orderB = Number(b.displayOrder) || 999;
+    return orderA - orderB;
+  });
+
+  // final list: pehle trending, phir normal
+  const finalProperties = [...trendingProperties, ...normalProperties];
+
+  renderProperties(finalProperties);
+
+  if (selectedCategory && searchText) {
+    resultText.innerText = "Showing " + selectedCategory + " results for: " + searchText;
+  } else if (selectedCategory) {
+    resultText.innerText = "Showing: " + selectedCategory;
+  } else if (searchText) {
+    resultText.innerText = "Search result for: " + searchText;
+  } else {
+    resultText.innerText = "";
+  }
+}
 
     window.searchProperties = function () {
       applyFilters();
