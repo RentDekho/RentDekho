@@ -65,6 +65,7 @@
       border:1px solid #ccc;
       border-radius:8px;
       margin-top:5px;
+      box-sizing:border-box;
     }
 
     button{
@@ -148,8 +149,10 @@ async function loadProperties() {
     const data = docSnap.data();
     const id = docSnap.id;
 
-    const status = (data.status || "pending").toLowerCase();
+    const status = (data.status || "pending").trim().toLowerCase();
     const trending = data.trending === true ? "true" : "false";
+    const paymentReceived = data.paymentReceived === true ? "true" : "false";
+    const planType = (data.planType || "free").toLowerCase();
     const displayOrder = data.displayOrder || 999;
 
     const card = document.createElement("div");
@@ -158,18 +161,32 @@ async function loadProperties() {
     const imageSrc = data.image || "https://via.placeholder.com/400x220?text=No+Image";
 
     card.innerHTML = `
-      <img src="${imageSrc}">
+      <img src="${imageSrc}" alt="Property Image">
+
       <h3>${data.title || "No Title"}</h3>
 
       <p><b>Type:</b> ${data.type || "N/A"}</p>
-      <p><b>Location:</b> ${data.city || ""}</p>
+      <p><b>Location:</b> ${(data.address || "")}${data.city ? ", " + data.city : ""}</p>
       <p><b>Price:</b> ₹${data.price || "N/A"}</p>
+      <p><b>Owner:</b> ${data.owner || "N/A"}</p>
       <p><b>Phone:</b> ${data.phone || "N/A"}</p>
 
       <label>Status</label>
       <select id="status-${id}">
         <option value="pending" ${status === "pending" ? "selected" : ""}>Pending</option>
         <option value="approved" ${status === "approved" ? "selected" : ""}>Approved</option>
+      </select>
+
+      <label>Plan Type</label>
+      <select id="plan-${id}">
+        <option value="free" ${planType === "free" ? "selected" : ""}>Free</option>
+        <option value="premium" ${planType === "premium" ? "selected" : ""}>Premium</option>
+      </select>
+
+      <label>Payment Received</label>
+      <select id="payment-${id}">
+        <option value="false" ${paymentReceived === "false" ? "selected" : ""}>No</option>
+        <option value="true" ${paymentReceived === "true" ? "selected" : ""}>Yes</option>
       </select>
 
       <label>Trending</label>
@@ -204,26 +221,38 @@ async function loadProperties() {
 }
 
 window.updateProperty = async function(id) {
-  const status = document.getElementById("status-"+id).value;
-  const trending = document.getElementById("trending-"+id).value === "true";
-  const order = Number(document.getElementById("order-"+id).value) || 999;
+  const status = document.getElementById("status-" + id).value;
+  const planType = document.getElementById("plan-" + id).value;
+  const paymentReceived = document.getElementById("payment-" + id).value === "true";
+  let trending = document.getElementById("trending-" + id).value === "true";
+  const order = Number(document.getElementById("order-" + id).value) || 999;
+
+  if (planType === "free") {
+    trending = false;
+  }
+
+  if (planType === "premium" && paymentReceived === false) {
+    trending = false;
+  }
 
   await updateDoc(doc(db, "properties", id), {
     status: status,
     verified: status === "approved",
+    planType: planType,
+    paymentReceived: paymentReceived,
     trending: trending,
     displayOrder: order
   });
 
-  alert("Updated");
+  alert("Property updated successfully");
   loadProperties();
 };
 
 window.deleteProperty = async function(id) {
-  if (!confirm("Delete?")) return;
+  if (!confirm("Delete property?")) return;
 
   await deleteDoc(doc(db, "properties", id));
-  alert("Deleted");
+  alert("Property deleted successfully");
   loadProperties();
 };
 
