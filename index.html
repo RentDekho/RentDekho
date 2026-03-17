@@ -367,18 +367,24 @@
         const querySnapshot = await getDocs(collection(db, "properties"));
         allProperties = [];
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
+querySnapshot.forEach((doc) => {
+  const data = doc.data();
 
-          if ((data.status || "").trim().toLowerCase() === "approved") {
-            allProperties.push({
-              id: doc.id,
-              ...data
-            });
-          }
-        });
+  if ((data.status || "").trim().toLowerCase() === "approved") {
+    allProperties.push({
+      id: doc.id,
+      ...data
+    });
+  }
+});
 
-        applyFilters();
+allProperties.sort((a, b) => {
+  const orderA = Number(a.displayOrder) || 999;
+  const orderB = Number(b.displayOrder) || 999;
+  return orderA - orderB;
+});
+
+applyFilters();
       } catch (error) {
         console.error("Error loading properties:", error);
         propertyList.innerHTML = "<p>Properties load nahi hui.</p>";
