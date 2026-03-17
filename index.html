@@ -6,180 +6,255 @@
   <title>RentDekho</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      background: #f5f5f5;
-      padding-bottom: 80px;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
+      padding-bottom: 90px;
     }
 
     header {
-      background: #1a73e8;
+      background: #111184;
       color: white;
-      padding: 15px;
       text-align: center;
+      padding: 16px;
       font-size: 24px;
       font-weight: bold;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .hero {
-      background: #1a73e8;
+      background: linear-gradient(135deg, #111184, #1d4ed8);
       color: white;
-      text-align: center;
-      padding: 50px 20px;
+      padding: 28px 18px 32px;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
     }
 
     .hero h1 {
-      margin: 0 0 10px 0;
-      font-size: 42px;
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.2;
+      text-align: center;
     }
 
     .hero p {
-      margin-bottom: 20px;
-      font-size: 18px;
+      margin: 0 0 20px;
+      text-align: center;
+      font-size: 15px;
+      opacity: 0.95;
     }
 
-    .hero input {
-      padding: 12px;
-      width: 260px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    .search-box {
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      max-width: 700px;
+      margin: 0 auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 15px;
       outline: none;
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .search-actions button {
+      flex: 1;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
       font-size: 15px;
     }
 
-    .hero button {
-      width: 140px;
-      padding: 14px;
-      border: none;
-      background: white;
-      color: #1a73e8;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 16px;
-      margin-top: 10px;
-      margin-right: 8px;
+    .search-btn {
+      background: #ff5e00;
+      color: white;
+    }
+
+    .clear-btn {
+      background: #eef2ff;
+      color: #111184;
     }
 
     #resultText {
       margin-top: 12px;
-      font-size: 15px;
+      text-align: center;
+      font-size: 14px;
       font-weight: bold;
       color: white;
     }
 
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 18px;
+      margin-top: -14px;
+    }
+
+    .stat-box {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 10px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .stat-box h3 {
+      margin: 0;
+      color: #111184;
+      font-size: 20px;
+    }
+
+    .stat-box p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .section {
+      padding: 0 18px 18px;
+    }
+
+    .section h2 {
+      margin: 8px 0 14px;
+      font-size: 22px;
+      color: #1f2937;
+    }
+
     .categories {
       display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 30px;
-      flex-wrap: wrap;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+
+    .categories::-webkit-scrollbar {
+      display: none;
     }
 
     .card {
+      min-width: 110px;
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 120px;
+      border-radius: 999px;
+      padding: 12px 18px;
       text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
       cursor: pointer;
-      transition: 0.2s;
       border: 2px solid transparent;
       font-weight: bold;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
+      color: #333;
+      white-space: nowrap;
+      transition: 0.2s;
     }
 
     .card.active {
-      border: 2px solid #1a73e8;
-      background: #eaf2ff;
-      color: #1a73e8;
+      border-color: #111184;
+      color: #111184;
+      background: #eef2ff;
     }
 
-    .properties {
-      padding: 20px;
-    }
-
-    .properties h2 {
-      margin-bottom: 20px;
+    .property-list {
+      display: grid;
+      gap: 16px;
     }
 
     .property-card {
       background: white;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
       cursor: pointer;
       transition: 0.2s;
     }
 
+    .property-card:hover {
+      transform: translateY(-2px);
+    }
+
     .property-card.trending {
       border: 2px solid #ff5e00;
-      box-shadow: 0 4px 15px rgba(255,94,0,0.25);
-      transform: scale(1.01);
+      box-shadow: 0 6px 22px rgba(255,94,0,0.18);
     }
 
     .image-wrapper {
       position: relative;
     }
 
+    .property-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      background: #eee;
+    }
+
     .trending-badge {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 12px;
+      left: 12px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       background: rgba(255, 94, 0, 0.96);
       color: white;
-      padding: 6px 12px;
+      padding: 7px 12px;
+      border-radius: 999px;
       font-size: 12px;
-      font-weight: 700;
-      border-radius: 20px;
-      z-index: 5;
+      font-weight: bold;
       box-shadow: 0 4px 12px rgba(0,0,0,0.22);
-      line-height: 1;
+      z-index: 2;
     }
 
-    .trending-badge .fire {
-      font-size: 14px;
+    .property-info {
+      padding: 14px;
     }
 
-    .trending-badge .text {
-      font-size: 11px;
-      letter-spacing: 0.5px;
+    .property-info h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      color: #111827;
     }
 
-    .property-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 8px;
-      background: #eee;
-      display: block;
+    .property-info p {
+      margin: 6px 0;
+      font-size: 15px;
+      color: #4b5563;
     }
 
-    .property-card h3 {
-      margin-top: 12px;
-      margin-bottom: 10px;
-      font-size: 22px;
-    }
-
-    .property-card p {
-      margin: 8px 0;
-      font-size: 16px;
+    .property-price {
+      color: #111184;
+      font-weight: bold;
+      font-size: 18px;
     }
 
     #noDataMessage {
       text-align: center;
-      color: #555;
-      font-size: 18px;
-      margin-top: 20px;
+      color: #666;
+      font-size: 16px;
+      margin-top: 12px;
     }
 
     #loginModal {
@@ -188,21 +263,40 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: white;
+      width: 92%;
+      max-width: 340px;
       padding: 20px;
+      border-radius: 18px;
       z-index: 1000;
-      border-radius: 10px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.28);
       text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      width: 320px;
-      max-width: 90%;
+    }
+
+    #loginModal h2 {
+      margin-top: 0;
+      color: #111184;
     }
 
     #loginModal input,
     #loginModal button {
       width: 100%;
-      padding: 10px;
+      padding: 11px;
       margin-top: 10px;
+      border-radius: 10px;
       box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    #loginModal input {
+      border: 1px solid #ccc;
+    }
+
+    #loginModal button {
+      border: none;
+      background: #111184;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     #content {
@@ -212,33 +306,32 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
       background: white;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid #ddd;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
       z-index: 999;
+      box-shadow: 0 -4px 14px rgba(0,0,0,0.05);
     }
 
     .bottom-nav a {
       text-decoration: none;
-      color: black;
-      font-size: 14px;
+      color: #374151;
+      font-size: 13px;
+      text-align: center;
+      font-weight: 600;
     }
 
     @media (max-width: 768px) {
       .hero h1 {
-        font-size: 30px;
+        font-size: 28px;
       }
 
-      .hero input {
-        width: 90%;
-        max-width: 320px;
-      }
-
-      .hero button {
-        width: 120px;
+      .stats {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   </style>
@@ -252,34 +345,55 @@
       <h1>Your Perfect Home Is Just One Click Away</h1>
       <p>Find flats, rooms and houses without brokerage</p>
 
-      <input type="text" id="searchInput" placeholder="Search city or area">
-      <br><br>
-      <button onclick="searchProperties()">Search</button>
-      <button onclick="clearSearch()">Clear</button>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search city or area">
+        <div class="search-actions">
+          <button class="search-btn" onclick="searchProperties()">Search</button>
+          <button class="clear-btn" onclick="clearSearch()">Clear</button>
+        </div>
+      </div>
 
       <div id="resultText"></div>
     </section>
 
-    <section class="categories">
-      <div class="card" onclick="filterByCategory('Flat', this)">Flat</div>
-      <div class="card" onclick="filterByCategory('Room', this)">Room</div>
-      <div class="card" onclick="filterByCategory('PG', this)">PG</div>
-      <div class="card" onclick="filterByCategory('House', this)">House</div>
+    <section class="stats">
+      <div class="stat-box">
+        <h3>500+</h3>
+        <p>Listings</p>
+      </div>
+      <div class="stat-box">
+        <h3>20+</h3>
+        <p>Areas</p>
+      </div>
+      <div class="stat-box">
+        <h3>24/7</h3>
+        <p>Support</p>
+      </div>
     </section>
 
-    <section class="properties">
-      <h2>Trending Properties</h2>
-      <div id="propertyList"></div>
+    <section class="section">
+      <h2>Browse by Type</h2>
+      <div class="categories">
+        <div class="card" onclick="filterByCategory('Flat', this)">Flat</div>
+        <div class="card" onclick="filterByCategory('Room', this)">Room</div>
+        <div class="card" onclick="filterByCategory('PG', this)">PG</div>
+        <div class="card" onclick="filterByCategory('House', this)">House</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Properties</h2>
+      <div id="propertyList" class="property-list"></div>
       <p id="noDataMessage"></p>
     </section>
   </div>
 
   <div class="bottom-nav">
-    <a href="index.html">🏠 Home</a>
-    <a href="#top">🔍 Search</a>
-    <a href="add-property.html">➕ Add</a>
-    <a href="#">❤️ Saved</a>
-    <a href="#">👤 Profile</a>
+    <a href="index.html">🏠<br>Home</a>
+    <a href="#top">🔍<br>Search</a>
+    <a href="add-property.html">➕<br>Add</a>
+    <a href="#">❤️<br>Saved</a>
+    <a href="#">👤<br>Profile</a>
   </div>
 
   <div id="loginModal">
@@ -289,7 +403,6 @@
     <div id="recaptcha-container"></div>
 
     <button onclick="sendOTP()">Send OTP</button>
-
     <input type="text" id="otp" placeholder="Enter OTP">
     <button onclick="verifyOTP()">Verify OTP</button>
 
@@ -455,9 +568,11 @@
               ${badge}
               <img src="${imageSrc}" alt="Property Image">
             </div>
-            <h3>${data.title || "No Title"}</h3>
-            <p>📍 ${locationText}</p>
-            <p>💰 ₹${data.price || "N/A"}</p>
+            <div class="property-info">
+              <h3>${data.title || "No Title"}</h3>
+              <p>📍 ${locationText}</p>
+              <p class="property-price">💰 ₹${data.price || "N/A"}</p>
+            </div>
           </div>
         `;
 
