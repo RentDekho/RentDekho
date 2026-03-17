@@ -144,17 +144,6 @@
       margin-top: 20px;
     }
 
-    #debugBox {
-      margin: 20px;
-      padding: 12px;
-      background: #fff3cd;
-      border: 1px solid #ffe69c;
-      border-radius: 10px;
-      color: #664d03;
-      font-size: 14px;
-      white-space: pre-line;
-    }
-
     #loginModal {
       position: fixed;
       top: 50%;
@@ -233,8 +222,6 @@
       <div id="resultText"></div>
     </section>
 
-    <div id="debugBox">Loading debug info...</div>
-
     <section class="categories">
       <div class="card" onclick="filterByCategory('Flat', this)">Flat</div>
       <div class="card" onclick="filterByCategory('Room', this)">Room</div>
@@ -298,10 +285,6 @@
       document.getElementById("loginModal").style.display = "none";
       document.getElementById("content").style.filter = "none";
       localStorage.setItem("rentdekhoLoginClosed", "yes");
-    }
-
-    function updateDebug(text) {
-      document.getElementById("debugBox").innerText = text;
     }
 
     window.onload = function () {
@@ -384,15 +367,10 @@
         const querySnapshot = await getDocs(collection(db, "properties"));
         allProperties = [];
 
-        let totalDocs = 0;
-        let approvedDocs = 0;
-
         querySnapshot.forEach((doc) => {
-          totalDocs++;
           const data = doc.data();
 
-          if (data.status === "approved") {
-            approvedDocs++;
+          if ((data.status || "").trim().toLowerCase() === "approved") {
             allProperties.push({
               id: doc.id,
               ...data
@@ -400,16 +378,9 @@
           }
         });
 
-        updateDebug(
-          "Total docs in Firestore: " + totalDocs +
-          "\nApproved docs found: " + approvedDocs +
-          "\nLoaded on page: " + allProperties.length
-        );
-
         applyFilters();
       } catch (error) {
         console.error("Error loading properties:", error);
-        updateDebug("Error loading data: " + error.message);
         propertyList.innerHTML = "<p>Properties load nahi hui.</p>";
       }
     }
