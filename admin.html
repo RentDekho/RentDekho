@@ -1,145 +1,233 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Panel</title>
-<style>
+  <title>Admin Panel - RentDekho</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-body{
-font-family: Arial;
-background:#f5f5f5;
-padding:20px;
-}
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#f5f5f5;
+      margin:0;
+      padding:20px;
+    }
 
-.card{
-background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:8px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
+    h1{
+      text-align:center;
+      color:#1a73e8;
+      margin-bottom:30px;
+    }
 
-button{
-padding:6px 10px;
-margin-top:5px;
-cursor:pointer;
-}
+    h2{
+      margin-top:30px;
+      color:#333;
+    }
 
-</style>
+    .section{
+      margin-bottom:40px;
+    }
+
+    .card{
+      background:white;
+      padding:15px;
+      margin-bottom:15px;
+      border-radius:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card img{
+      width:100%;
+      max-height:220px;
+      object-fit:cover;
+      border-radius:10px;
+      margin-bottom:12px;
+      background:#eee;
+    }
+
+    .card h3{
+      margin:10px 0;
+    }
+
+    .card p{
+      margin:6px 0;
+      color:#333;
+    }
+
+    label{
+      display:block;
+      margin-top:10px;
+      font-weight:bold;
+    }
+
+    select, input{
+      width:100%;
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      margin-top:5px;
+    }
+
+    button{
+      padding:10px 14px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+      margin-top:10px;
+      margin-right:8px;
+    }
+
+    .update-btn{
+      background:#1a73e8;
+      color:white;
+    }
+
+    .delete-btn{
+      background:#dc3545;
+      color:white;
+    }
+
+    .empty{
+      background:white;
+      padding:15px;
+      border-radius:10px;
+      color:#666;
+    }
+  </style>
 </head>
-
 <body>
 
-<h2>Admin Property Control</h2>
+<h1>RentDekho Admin Panel</h1>
 
-<div id="propertyList"></div>
+<div class="section">
+  <h2>Pending Properties</h2>
+  <div id="pendingList"></div>
+</div>
 
+<div class="section">
+  <h2>Approved Properties</h2>
+  <div id="approvedList"></div>
+</div>
 
 <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import {
-getFirestore,
-collection,
-getDocs,
-updateDoc,
-doc,
-deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+  getFirestore,
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
-
-apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
-authDomain: "rentdekho-90245.firebaseapp.com",
-projectId: "rentdekho-90245",
-storageBucket: "rentdekho-90245.firebasestorage.app",
-messagingSenderId: "175577928788",
-appId: "1:175577928788:web:0eac251ef0cfb7a99bc9c1"
-
+  apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
+  authDomain: "rentdekho-90245.firebaseapp.com",
+  projectId: "rentdekho-90245",
+  storageBucket: "rentdekho-90245.firebasestorage.app",
+  messagingSenderId: "175577928788",
+  appId: "1:175577928788:web:0eac251ef0cfb7a99bc9c1"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+async function loadProperties() {
+  const pendingContainer = document.getElementById("pendingList");
+  const approvedContainer = document.getElementById("approvedList");
 
-async function loadProperties(){
+  pendingContainer.innerHTML = "";
+  approvedContainer.innerHTML = "";
 
-const querySnapshot = await getDocs(collection(db,"properties"));
+  const querySnapshot = await getDocs(collection(db, "properties"));
 
-const container = document.getElementById("propertyList");
+  let pendingCount = 0;
+  let approvedCount = 0;
 
-container.innerHTML = "";
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const id = docSnap.id;
 
-querySnapshot.forEach((docSnap)=>{
+    const status = (data.status || "pending").toLowerCase();
+    const trending = data.trending === true ? "true" : "false";
+    const displayOrder = data.displayOrder || 999;
 
-const data = docSnap.data();
-const id = docSnap.id;
+    const card = document.createElement("div");
+    card.className = "card";
 
-const status = data.status || "pending";
+    const imageSrc = data.image || "https://via.placeholder.com/400x220?text=No+Image";
 
-const div = document.createElement("div");
-div.className = "card";
+    card.innerHTML = `
+      <img src="${imageSrc}">
+      <h3>${data.title || "No Title"}</h3>
 
-div.innerHTML = `
+      <p><b>Type:</b> ${data.type || "N/A"}</p>
+      <p><b>Location:</b> ${data.city || ""}</p>
+      <p><b>Price:</b> ₹${data.price || "N/A"}</p>
+      <p><b>Phone:</b> ${data.phone || "N/A"}</p>
 
-<h3>${data.title}</h3>
+      <label>Status</label>
+      <select id="status-${id}">
+        <option value="pending" ${status === "pending" ? "selected" : ""}>Pending</option>
+        <option value="approved" ${status === "approved" ? "selected" : ""}>Approved</option>
+      </select>
 
-<p>City: ${data.city}</p>
+      <label>Trending</label>
+      <select id="trending-${id}">
+        <option value="false" ${trending === "false" ? "selected" : ""}>No</option>
+        <option value="true" ${trending === "true" ? "selected" : ""}>Yes</option>
+      </select>
 
-<p>Price: ${data.price}</p>
+      <label>Display Order</label>
+      <input type="number" id="order-${id}" value="${displayOrder}">
 
-<select id="status-${id}">
-<option value="pending" ${status==="pending"?"selected":""}>Pending</option>
-<option value="approved" ${status==="approved"?"selected":""}>Approved</option>
-</select>
+      <button class="update-btn" onclick="updateProperty('${id}')">Update</button>
+      <button class="delete-btn" onclick="deleteProperty('${id}')">Delete</button>
+    `;
 
-<br><br>
+    if (status === "approved") {
+      approvedContainer.appendChild(card);
+      approvedCount++;
+    } else {
+      pendingContainer.appendChild(card);
+      pendingCount++;
+    }
+  });
 
-<button onclick="updateStatus('${id}')">Update</button>
+  if (pendingCount === 0) {
+    pendingContainer.innerHTML = "<div class='empty'>No pending properties</div>";
+  }
 
-<button onclick="deleteProperty('${id}')">Delete</button>
-
-`;
-
-container.appendChild(div);
-
-});
-
+  if (approvedCount === 0) {
+    approvedContainer.innerHTML = "<div class='empty'>No approved properties</div>";
+  }
 }
 
-window.updateStatus = async function(id){
+window.updateProperty = async function(id) {
+  const status = document.getElementById("status-"+id).value;
+  const trending = document.getElementById("trending-"+id).value === "true";
+  const order = Number(document.getElementById("order-"+id).value) || 999;
 
-const newStatus = document.getElementById("status-"+id).value;
+  await updateDoc(doc(db, "properties", id), {
+    status: status,
+    verified: status === "approved",
+    trending: trending,
+    displayOrder: order
+  });
 
-await updateDoc(doc(db,"properties",id),{
+  alert("Updated");
+  loadProperties();
+};
 
-status:newStatus
+window.deleteProperty = async function(id) {
+  if (!confirm("Delete?")) return;
 
-});
-
-alert("Status Updated");
+  await deleteDoc(doc(db, "properties", id));
+  alert("Deleted");
+  loadProperties();
+};
 
 loadProperties();
-
-}
-
-window.deleteProperty = async function(id){
-
-if(confirm("Delete property?")){
-
-await deleteDoc(doc(db,"properties",id));
-
-alert("Deleted");
-
-loadProperties();
-
-}
-
-}
-
-loadProperties();
-
 </script>
 
 </body>
