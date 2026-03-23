@@ -85,7 +85,6 @@
       display: none;
       border: 1px solid #ddd;
     }
-    }
   </style>
 </head>
 <body>
@@ -138,14 +137,16 @@
     </form>
   </div>
 
- import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      doc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -335,16 +336,17 @@
           trending: false,
           ownerUserId: currentUser.userId || "",
           ownerName: currentUser.name || owner,
-          ownerCategory: currentUser.category || "owner"
+          ownerCategory: "owner"
         });
-        if (currentUser.userId) {
-  await updateDoc(doc(db, "users", currentUser.userId), {
-    category: "owner"
-  });
 
-  currentUser.category = "owner";
-  localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(currentUser));
-}
+        if (currentUser.userId) {
+          await updateDoc(doc(db, "users", currentUser.userId), {
+            category: "owner"
+          });
+
+          currentUser.category = "owner";
+          localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(currentUser));
+        }
 
         statusDiv.innerText = "Property submitted successfully! It is pending for approval.";
         statusDiv.style.color = "green";
