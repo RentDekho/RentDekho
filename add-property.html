@@ -104,11 +104,6 @@
 
     <h2>Add Your Property</h2>
 
-    <div class="note-box">
-      Free listing ke liye abhi 1 active post allowed hai per phone number.
-      Premium listing admin approval ke baad manually activate hogi.
-    </div>
-
     <form id="propertyForm">
       <label for="title">Property Title</label>
       <input type="text" id="title" required>
@@ -152,14 +147,14 @@
     </form>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+ import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -351,6 +346,14 @@
           ownerName: currentUser.name || owner,
           ownerCategory: currentUser.category || "owner"
         });
+        if (currentUser.userId) {
+  await updateDoc(doc(db, "users", currentUser.userId), {
+    category: "owner"
+  });
+
+  currentUser.category = "owner";
+  localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(currentUser));
+}
 
         statusDiv.innerText = "Property submitted successfully! It is pending for approval.";
         statusDiv.style.color = "green";
