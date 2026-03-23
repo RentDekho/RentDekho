@@ -272,6 +272,14 @@
     form.addEventListener("submit", async function(e){
       e.preventDefault();
 
+      const currentUser = JSON.parse(localStorage.getItem("rentdekhoCurrentUser") || "null");
+
+      if (!currentUser) {
+        statusDiv.innerText = "Please login first from homepage.";
+        statusDiv.style.color = "red";
+        return;
+      }
+
       const title = document.getElementById("title").value.trim();
       const type = document.getElementById("type").value;
       const city = document.getElementById("city").value.trim();
@@ -301,6 +309,12 @@
         return;
       }
 
+      if (currentUser.phone && normalizePhone(currentUser.phone) !== cleanPhone) {
+        statusDiv.innerText = "You can only post using your own account phone number.";
+        statusDiv.style.color = "red";
+        return;
+      }
+
       submitBtn.disabled = true;
       submitBtn.innerText = "Submitting...";
       statusDiv.innerText = "";
@@ -309,7 +323,7 @@
         const alreadyHasFreePost = await checkFreeListingLimit(cleanPhone);
 
         if (alreadyHasFreePost) {
-         statusDiv.innerText = "You already have one free active listing. To add more listings, please contact RentDekho for a premium plan.";
+          statusDiv.innerText = "This phone number already has one free active listing. For another listing, contact RentDekho for premium plan.";
           statusDiv.style.color = "red";
           submitBtn.disabled = false;
           submitBtn.innerText = "Submit Property";
@@ -332,7 +346,10 @@
           displayOrder: 999,
           planType: "free",
           paymentReceived: false,
-          trending: false
+          trending: false,
+          ownerUserId: currentUser.userId || "",
+          ownerName: currentUser.name || owner,
+          ownerCategory: currentUser.category || "owner"
         });
 
         statusDiv.innerText = "Property submitted successfully! It is pending for approval.";
