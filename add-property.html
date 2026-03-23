@@ -309,7 +309,7 @@
         const alreadyHasFreePost = await checkFreeListingLimit(cleanPhone);
 
         if (alreadyHasFreePost) {
-          statusDiv.innerText = "This phone number already has one free active listing. For another listing, contact admin for premium plan.";
+         statusDiv.innerText = "You already have one free active listing. To add more listings, please contact RentDekho for a premium plan.";
           statusDiv.style.color = "red";
           submitBtn.disabled = false;
           submitBtn.innerText = "Submit Property";
