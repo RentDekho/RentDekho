@@ -6,9 +6,7 @@
   <title>RentDekho</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -278,6 +276,7 @@
     }
 
     #loginModal input,
+    #loginModal select,
     #loginModal button {
       width: 100%;
       padding: 11px;
@@ -287,7 +286,8 @@
       font-size: 14px;
     }
 
-    #loginModal input {
+    #loginModal input,
+    #loginModal select {
       border: 1px solid #ccc;
     }
 
@@ -399,6 +399,13 @@
   <div id="loginModal">
     <h2>Login to RentDekho</h2>
 
+    <input type="text" id="userName" placeholder="Your Name">
+    <select id="userCategory">
+      <option value="">Select Category</option>
+      <option value="tenant">Tenant</option>
+      <option value="owner">Owner</option>
+    </select>
+
     <input type="text" id="phoneNumber" placeholder="+91 9876543210">
     <div id="recaptcha-container"></div>
 
@@ -413,7 +420,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -432,10 +439,64 @@
     let allProperties = [];
     let selectedCategory = "";
 
+    function normalizePhone(phone) {
+      return String(phone || "").replace(/\D/g, "").trim();
+    }
+
     function closeLogin() {
       document.getElementById("loginModal").style.display = "none";
       document.getElementById("content").style.filter = "none";
       localStorage.setItem("rentdekhoLoginClosed", "yes");
+    }
+
+    async function saveCurrentUser(userData) {
+      localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(userData));
+    }
+
+    async function createOrUpdateUserByPhone(phone, name, category) {
+      const cleanPhone = normalizePhone(phone);
+      const userId = "user_" + cleanPhone;
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          userId: userId,
+          name: name || "User",
+          phone: cleanPhone,
+          category: category || "tenant",
+          planType: "free",
+          paymentReceived: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      const finalSnap = await getDoc(userRef);
+      const finalData = finalSnap.data();
+      await saveCurrentUser(finalData);
+      return finalData;
+    }
+
+    async function createOrUpdateGoogleUser(user) {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          userId: user.uid,
+          name: user.displayName || "Google User",
+          phone: user.phoneNumber || "",
+          category: "tenant",
+          planType: "free",
+          paymentReceived: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      const finalSnap = await getDoc(userRef);
+      const finalData = finalSnap.data();
+      await saveCurrentUser(finalData);
+      return finalData;
     }
 
     window.onload = function () {
@@ -463,22 +524,39 @@
       });
     };
 
-    window.googleLogin = function () {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          alert("Welcome " + result.user.displayName);
-          closeLogin();
-        })
-        .catch((error) => {
-          console.error("Google login error:", error);
-          alert("Google login failed");
-        });
+    window.googleLogin = async function () {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const savedUser = await createOrUpdateGoogleUser(result.user);
+        alert("Welcome " + (savedUser.name || result.user.displayName || "User"));
+        closeLogin();
+      } catch (error) {
+        console.error("Google login error:", error);
+        alert("Google login failed");
+      }
     };
 
     window.confirmationResult = null;
 
-    window.sendOTP = function () {
-      const phone = document.getElementById("phoneNumber").value;
+    window.sendOTP = async function () {
+      const name = document.getElementById("userName").value.trim();
+      const category = document.getElementById("userCategory").value;
+      const phone = document.getElementById("phoneNumber").value.trim();
+
+      if (!name) {
+        alert("Please enter your name");
+        return;
+      }
+
+      if (!category) {
+        alert("Please select category");
+        return;
+      }
+
+      if (!phone) {
+        alert("Please enter phone number");
+        return;
+      }
 
       signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
         .then((result) => {
@@ -491,23 +569,26 @@
         });
     };
 
-    window.verifyOTP = function () {
+    window.verifyOTP = async function () {
       const otp = document.getElementById("otp").value;
+      const name = document.getElementById("userName").value.trim();
+      const category = document.getElementById("userCategory").value;
+      const phone = document.getElementById("phoneNumber").value.trim();
 
       if (!window.confirmationResult) {
         alert("Pehle OTP send karo");
         return;
       }
 
-      window.confirmationResult.confirm(otp)
-        .then(() => {
-          alert("Login Successful");
-          closeLogin();
-        })
-        .catch((error) => {
-          console.error("OTP verify error:", error);
-          alert("Invalid OTP");
-        });
+      try {
+        await window.confirmationResult.confirm(otp);
+        const savedUser = await createOrUpdateUserByPhone(phone, name, category);
+        alert("Login Successful");
+        closeLogin();
+      } catch (error) {
+        console.error("OTP verify error:", error);
+        alert("Invalid OTP");
+      }
     };
 
     async function loadProperties() {
