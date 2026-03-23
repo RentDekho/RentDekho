@@ -400,12 +400,7 @@
     <h2>Login to RentDekho</h2>
 
     <input type="text" id="userName" placeholder="Your Name">
-    <select id="userCategory">
-      <option value="">Select Category</option>
-      <option value="tenant">Tenant</option>
-      <option value="owner">Owner</option>
-    </select>
-
+  
     <input type="text" id="phoneNumber" placeholder="+91 9876543210">
     <div id="recaptcha-container"></div>
 
@@ -524,72 +519,51 @@
       });
     };
 
-    window.googleLogin = async function () {
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const savedUser = await createOrUpdateGoogleUser(result.user);
-        alert("Welcome " + (savedUser.name || result.user.displayName || "User"));
-        closeLogin();
-      } catch (error) {
-        console.error("Google login error:", error);
-        alert("Google login failed");
-      }
-    };
+window.sendOTP = async function () {
+  const name = document.getElementById("userName").value.trim();
+  const phone = document.getElementById("phoneNumber").value.trim();
 
-    window.confirmationResult = null;
+  if (!name) {
+    alert("Please enter your name");
+    return;
+  }
 
-    window.sendOTP = async function () {
-      const name = document.getElementById("userName").value.trim();
-      const category = document.getElementById("userCategory").value;
-      const phone = document.getElementById("phoneNumber").value.trim();
+  if (!phone) {
+    alert("Please enter phone number");
+    return;
+  }
 
-      if (!name) {
-        alert("Please enter your name");
-        return;
-      }
+  signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+    .then((result) => {
+      window.confirmationResult = result;
+      alert("OTP Sent");
+    })
+    .catch((error) => {
+      console.error("OTP send error:", error);
+      alert("OTP send failed");
+    });
+};
+window.verifyOTP = async function () {
+  const otp = document.getElementById("otp").value;
+  const name = document.getElementById("userName").value.trim();
+  const category = document.getElementById("userCategory").value;
+  const phone = document.getElementById("phoneNumber").value.trim();
 
-      if (!category) {
-        alert("Please select category");
-        return;
-      }
+  if (!window.confirmationResult) {
+    alert("Pehle OTP send karo");
+    return;
+  }
 
-      if (!phone) {
-        alert("Please enter phone number");
-        return;
-      }
-
-      signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-        .then((result) => {
-          window.confirmationResult = result;
-          alert("OTP Sent");
-        })
-        .catch((error) => {
-          console.error("OTP send error:", error);
-          alert("OTP send failed");
-        });
-    };
-
-    window.verifyOTP = async function () {
-      const otp = document.getElementById("otp").value;
-      const name = document.getElementById("userName").value.trim();
-      const category = document.getElementById("userCategory").value;
-      const phone = document.getElementById("phoneNumber").value.trim();
-
-      if (!window.confirmationResult) {
-        alert("Pehle OTP send karo");
-        return;
-      }
-
-      try {
-        await window.confirmationResult.confirm(otp);
-        const savedUser = await createOrUpdateUserByPhone(phone, name, category);
-        alert("Login Successful");
-        closeLogin();
-      } catch (error) {
-        console.error("OTP verify error:", error);
-        alert("Invalid OTP");
-      }
-    };
+  try {
+    await window.confirmationResult.confirm(otp);
+    const savedUser = await createOrUpdateUserByPhone(phone, name, category);
+    alert("Login Successful");
+    closeLogin();
+  } catch (error) {
+    console.error("OTP verify error:", error);
+    alert("Invalid OTP");
+  }
+};
 
     async function loadProperties() {
       const propertyList = document.getElementById("propertyList");
