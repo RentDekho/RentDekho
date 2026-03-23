@@ -73,6 +73,7 @@
       margin-top: 15px;
       text-align: center;
       font-weight: bold;
+      line-height: 1.5;
     }
 
     #preview{
@@ -84,6 +85,16 @@
       display: none;
       border: 1px solid #ddd;
     }
+
+    .note-box{
+      background: #eef4ff;
+      border: 1px solid #d8e6ff;
+      color: #1a3d7c;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -92,6 +103,11 @@
     <a href="index.html" class="back-link">← Back to Home</a>
 
     <h2>Add Your Property</h2>
+
+    <div class="note-box">
+      Free listing ke liye abhi 1 active post allowed hai per phone number.
+      Premium listing admin approval ke baad manually activate hogi.
+    </div>
 
     <form id="propertyForm">
       <label for="title">Property Title</label>
@@ -138,7 +154,12 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
@@ -215,6 +236,39 @@
       });
     }
 
+    function normalizePhone(phone) {
+      return String(phone || "").replace(/\D/g, "").trim();
+    }
+
+    async function checkFreeListingLimit(phoneNumber) {
+      const normalizedPhone = normalizePhone(phoneNumber);
+      const querySnapshot = await getDocs(collection(db, "properties"));
+
+      let hasExistingFreePost = false;
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+
+        const savedPhone = normalizePhone(data.phone);
+        const savedPlan = (data.planType || "free").toLowerCase();
+        const savedStatus = (data.status || "pending").toLowerCase();
+
+        const isActiveLike =
+          savedStatus === "pending" ||
+          savedStatus === "approved";
+
+        if (
+          savedPhone === normalizedPhone &&
+          savedPlan === "free" &&
+          isActiveLike
+        ) {
+          hasExistingFreePost = true;
+        }
+      });
+
+      return hasExistingFreePost;
+    }
+
     form.addEventListener("submit", async function(e){
       e.preventDefault();
 
@@ -239,11 +293,29 @@
         return;
       }
 
+      const cleanPhone = normalizePhone(phone);
+
+      if (cleanPhone.length < 10) {
+        statusDiv.innerText = "Please enter a valid phone number.";
+        statusDiv.style.color = "red";
+        return;
+      }
+
       submitBtn.disabled = true;
       submitBtn.innerText = "Submitting...";
       statusDiv.innerText = "";
 
       try {
+        const alreadyHasFreePost = await checkFreeListingLimit(cleanPhone);
+
+        if (alreadyHasFreePost) {
+          statusDiv.innerText = "This phone number already has one free active listing. For another listing, contact admin for premium plan.";
+          statusDiv.style.color = "red";
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Submit Property";
+          return;
+        }
+
         await addDoc(collection(db, "properties"), {
           title: title,
           type: type,
@@ -251,13 +323,16 @@
           address: address,
           price: price,
           owner: owner,
-          phone: phone,
+          phone: cleanPhone,
           image: finalImageData,
           desc: desc,
           createdAt: new Date().toISOString(),
           status: "pending",
           verified: false,
-          displayOrder: 999
+          displayOrder: 999,
+          planType: "free",
+          paymentReceived: false,
+          trending: false
         });
 
         statusDiv.innerText = "Property submitted successfully! It is pending for approval.";
@@ -269,6 +344,7 @@
         preview.style.display = "none";
         finalImageData = "";
         window.location.href = "index.html";
+
       } catch (error) {
         console.error(error);
         statusDiv.innerText = "Error saving property.";
