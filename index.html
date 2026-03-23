@@ -276,7 +276,6 @@
     }
 
     #loginModal input,
-    #loginModal select,
     #loginModal button {
       width: 100%;
       padding: 11px;
@@ -286,8 +285,7 @@
       font-size: 14px;
     }
 
-    #loginModal input,
-    #loginModal select {
+    #loginModal input {
       border: 1px solid #ccc;
     }
 
@@ -400,7 +398,6 @@
     <h2>Login to RentDekho</h2>
 
     <input type="text" id="userName" placeholder="Your Name">
-  
     <input type="text" id="phoneNumber" placeholder="+91 9876543210">
     <div id="recaptcha-container"></div>
 
@@ -448,7 +445,7 @@
       localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(userData));
     }
 
-    async function createOrUpdateUserByPhone(phone, name, category) {
+    async function createOrUpdateUserByPhone(phone, name) {
       const cleanPhone = normalizePhone(phone);
       const userId = "user_" + cleanPhone;
       const userRef = doc(db, "users", userId);
@@ -459,7 +456,7 @@
           userId: userId,
           name: name || "User",
           phone: cleanPhone,
-          category: category || "tenant",
+          category: "tenant",
           planType: "free",
           paymentReceived: false,
           createdAt: new Date().toISOString()
@@ -473,6 +470,7 @@
     }
 
     async function createOrUpdateGoogleUser(user) {
+      const fallbackPhone = user.email ? ("google_" + user.email.replace(/[^a-zA-Z0-9]/g, "_")) : user.uid;
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -480,10 +478,11 @@
         await setDoc(userRef, {
           userId: user.uid,
           name: user.displayName || "Google User",
-          phone: user.phoneNumber || "",
+          phone: fallbackPhone,
           category: "tenant",
           planType: "free",
           paymentReceived: false,
+          email: user.email || "",
           createdAt: new Date().toISOString()
         });
       }
@@ -519,51 +518,65 @@
       });
     };
 
-window.sendOTP = async function () {
-  const name = document.getElementById("userName").value.trim();
-  const phone = document.getElementById("phoneNumber").value.trim();
+    window.googleLogin = async function () {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const savedUser = await createOrUpdateGoogleUser(result.user);
+        alert("Welcome " + (savedUser.name || "User"));
+        closeLogin();
+      } catch (error) {
+        console.error("Google login error:", error);
+        alert("Google login failed");
+      }
+    };
 
-  if (!name) {
-    alert("Please enter your name");
-    return;
-  }
+    window.confirmationResult = null;
 
-  if (!phone) {
-    alert("Please enter phone number");
-    return;
-  }
+    window.sendOTP = async function () {
+      const name = document.getElementById("userName").value.trim();
+      const phone = document.getElementById("phoneNumber").value.trim();
 
-  signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-    .then((result) => {
-      window.confirmationResult = result;
-      alert("OTP Sent");
-    })
-    .catch((error) => {
-      console.error("OTP send error:", error);
-      alert("OTP send failed");
-    });
-};
-window.verifyOTP = async function () {
-  const otp = document.getElementById("otp").value;
-  const name = document.getElementById("userName").value.trim();
-  const category = document.getElementById("userCategory").value;
-  const phone = document.getElementById("phoneNumber").value.trim();
+      if (!name) {
+        alert("Please enter your name");
+        return;
+      }
 
-  if (!window.confirmationResult) {
-    alert("Pehle OTP send karo");
-    return;
-  }
+      if (!phone) {
+        alert("Please enter phone number");
+        return;
+      }
 
-  try {
-    await window.confirmationResult.confirm(otp);
-    const savedUser = await createOrUpdateUserByPhone(phone, name, category);
-    alert("Login Successful");
-    closeLogin();
-  } catch (error) {
-    console.error("OTP verify error:", error);
-    alert("Invalid OTP");
-  }
-};
+      signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+        .then((result) => {
+          window.confirmationResult = result;
+          alert("OTP Sent");
+        })
+        .catch((error) => {
+          console.error("OTP send error:", error);
+          alert("OTP send failed");
+        });
+    };
+
+    window.verifyOTP = async function () {
+      const otp = document.getElementById("otp").value;
+      const name = document.getElementById("userName").value.trim();
+      const phone = document.getElementById("phoneNumber").value.trim();
+
+      if (!window.confirmationResult) {
+        alert("Pehle OTP send karo");
+        return;
+      }
+
+      try {
+        await window.confirmationResult.confirm(otp);
+        await createOrUpdateUserByPhone(phone, name);
+        alert("Login Successful");
+        closeLogin();
+      } catch (error) {
+        console.error("OTP verify error:", error);
+        alert("Invalid OTP");
+      }
+    };
 
     async function loadProperties() {
       const propertyList = document.getElementById("propertyList");
@@ -614,7 +627,7 @@ window.verifyOTP = async function () {
           : (data.address || data.city || "No Location");
 
         const badge = data.trending === true
-          ? `<div class="trending-badge"><span class="fire">🔥</span><span class="text">Trending</span></div>`
+          ? `<div class="trending-badge">🔥 Trending</div>`
           : "";
 
         const card = `
@@ -730,4 +743,5 @@ window.verifyOTP = async function () {
   </script>
 
 </body>
-</html>
+</html> 
+bhai check karka bata final code thik haina. and usko pura dede ಮತ್ತೆ so that i know which one to replace with which one. nonsense मत करना and be careful this time
