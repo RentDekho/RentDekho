@@ -235,8 +235,8 @@
 await addDoc(collection(db, "leadEvents"), {
   propertyId: propertyId,
   actionType: "view_number",
-  clickedAt: new Date().toISOString(),
-
+ clickedAt: new Date().toISOString(),
+clickedAtIndia: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
   visitorUserId: currentUser.userId || "guest",
   visitorName: currentUser.name || "Guest",
   visitorPhone: currentUser.phone || "",
