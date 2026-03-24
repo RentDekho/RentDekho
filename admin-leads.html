@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Leads - RentDekho</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:#f5f7fb;
+      color:#222;
+      padding:20px;
+    }
+
+    .topbar{
+      background:#111184;
+      color:white;
+      padding:16px;
+      text-align:center;
+      font-size:24px;
+      font-weight:bold;
+      border-radius:14px;
+      margin-bottom:20px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+
+    .top-actions a,
+    .top-actions button{
+      background:white;
+      border:1px solid #ddd;
+      padding:10px 14px;
+      border-radius:10px;
+      text-decoration:none;
+      color:#111184;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap:14px;
+      margin-bottom:20px;
+    }
+
+    .stat-box{
+      background:white;
+      border-radius:14px;
+      padding:16px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .stat-box h3{
+      margin:0;
+      font-size:28px;
+      color:#111184;
+    }
+
+    .stat-box p{
+      margin:8px 0 0;
+      color:#555;
+      font-size:14px;
+      font-weight:bold;
+    }
+
+    .filters{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .filters input,
+    .filters select{
+      width:100%;
+      padding:12px;
+      border:1px solid #ccc;
+      border-radius:10px;
+      font-size:14px;
+      background:white;
+    }
+
+    .lead-list{
+      display:grid;
+      gap:14px;
+    }
+
+    .lead-card{
+      background:white;
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.08);
+      border-left:6px solid #111184;
+    }
+
+    .lead-card.view_number{
+      border-left-color:#111184;
+    }
+
+    .lead-card.contact_owner{
+      border-left-color:#ff5e00;
+    }
+
+    .lead-card.chat_with_owner{
+      border-left-color:#16a34a;
+    }
+
+    .lead-title{
+      font-size:18px;
+      font-weight:bold;
+      margin-bottom:10px;
+      color:#111827;
+    }
+
+    .lead-row{
+      margin:6px 0;
+      font-size:15px;
+      color:#374151;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+      color:white;
+    }
+
+    .badge.view_number{
+      background:#111184;
+    }
+
+    .badge.contact_owner{
+      background:#ff5e00;
+    }
+
+    .badge.chat_with_owner{
+      background:#16a34a;
+    }
+
+    .empty{
+      background:white;
+      border-radius:14px;
+      padding:20px;
+      text-align:center;
+      color:#666;
+      box-shadow:0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    @media (max-width: 768px){
+      .filters{
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">RentDekho Admin Leads</div>
+
+  <div class="top-actions">
+    <a href="admin.html">← Back to Admin</a>
+    <button onclick="loadLeads()">Refresh Leads</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <h3 id="totalLeads">0</h3>
+      <p>Total Leads</p>
+    </div>
+    <div class="stat-box">
+      <h3 id="viewCount">0</h3>
+      <p>View Number</p>
+    </div>
+    <div class="stat-box">
+      <h3 id="callCount">0</h3>
+      <p>Contact Owner</p>
+    </div>
+    <div class="stat-box">
+      <h3 id="chatCount">0</h3>
+      <p>Chat with Owner</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Search property ID / visitor / owner phone" oninput="applyFilters()">
+    <select id="actionFilter" onchange="applyFilters()">
+      <option value="">All Actions</option>
+      <option value="view_number">View Number</option>
+      <option value="contact_owner">Contact Owner</option>
+      <option value="chat_with_owner">Chat with Owner</option>
+    </select>
+  </div>
+
+  <div id="leadList" class="lead-list"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCV2KxqvgZE2soovOp5TxDK35hZh6p1pvA",
+      authDomain: "rentdekho-90245.firebaseapp.com",
+      projectId: "rentdekho-90245",
+      storageBucket: "rentdekho-90245.firebasestorage.app",
+      messagingSenderId: "175577928788",
+      appId: "1:175577928788:web:0eac251ef0cfb7a99bc9c1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allLeads = [];
+
+    function getActionLabel(actionType){
+      if(actionType === "view_number") return "View Number";
+      if(actionType === "contact_owner") return "Contact Owner";
+      if(actionType === "chat_with_owner") return "Chat with Owner";
+      return actionType || "Unknown";
+    }
+
+    function formatTime(lead){
+      return lead.clickedAtIndia || lead.clickedAt || "No time";
+    }
+
+    function updateStats(leads){
+      const total = leads.length;
+      const view = leads.filter(item => item.actionType === "view_number").length;
+      const call = leads.filter(item => item.actionType === "contact_owner").length;
+      const chat = leads.filter(item => item.actionType === "chat_with_owner").length;
+
+      document.getElementById("totalLeads").innerText = total;
+      document.getElementById("viewCount").innerText = view;
+      document.getElementById("callCount").innerText = call;
+      document.getElementById("chatCount").innerText = chat;
+    }
+
+    function renderLeads(leads){
+      const leadList = document.getElementById("leadList");
+      leadList.innerHTML = "";
+
+      if(leads.length === 0){
+        leadList.innerHTML = `<div class="empty">No leads found.</div>`;
+        return;
+      }
+
+      leads.forEach((lead) => {
+        const card = document.createElement("div");
+        card.className = `lead-card ${lead.actionType || ""}`;
+
+        card.innerHTML = `
+          <div class="lead-title">
+            <span class="badge ${lead.actionType || ""}">${getActionLabel(lead.actionType)}</span>
+          </div>
+
+          <div class="lead-row"><b>Property ID:</b> ${lead.propertyId || "N/A"}</div>
+          <div class="lead-row"><b>Visitor Name:</b> ${lead.visitorName || "Guest"}</div>
+          <div class="lead-row"><b>Visitor User ID:</b> ${lead.visitorUserId || "guest"}</div>
+          <div class="lead-row"><b>Visitor Phone:</b> ${lead.visitorPhone || "Not available"}</div>
+          <div class="lead-row"><b>Owner User ID:</b> ${lead.ownerUserId || "Not available"}</div>
+          <div class="lead-row"><b>Owner Phone:</b> ${lead.ownerPhone || "Not available"}</div>
+          <div class="lead-row"><b>Time:</b> ${formatTime(lead)}</div>
+        `;
+
+        leadList.appendChild(card);
+      });
+    }
+
+    window.applyFilters = function(){
+      const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
+      const actionFilter = document.getElementById("actionFilter").value;
+
+      let filteredLeads = [...allLeads];
+
+      if(actionFilter){
+        filteredLeads = filteredLeads.filter(item => item.actionType === actionFilter);
+      }
+
+      if(searchText){
+        filteredLeads = filteredLeads.filter(item => {
+          const propertyId = (item.propertyId || "").toLowerCase();
+          const visitorName = (item.visitorName || "").toLowerCase();
+          const visitorUserId = (item.visitorUserId || "").toLowerCase();
+          const visitorPhone = (item.visitorPhone || "").toLowerCase();
+          const ownerUserId = (item.ownerUserId || "").toLowerCase();
+          const ownerPhone = (item.ownerPhone || "").toLowerCase();
+
+          return (
+            propertyId.includes(searchText) ||
+            visitorName.includes(searchText) ||
+            visitorUserId.includes(searchText) ||
+            visitorPhone.includes(searchText) ||
+            ownerUserId.includes(searchText) ||
+            ownerPhone.includes(searchText)
+          );
+        });
+      }
+
+      updateStats(filteredLeads);
+      renderLeads(filteredLeads);
+    };
+
+    window.loadLeads = async function(){
+      const querySnapshot = await getDocs(collection(db, "leadEvents"));
+      allLeads = [];
+
+      querySnapshot.forEach((docSnap) => {
+        allLeads.push({
+          id: docSnap.id,
+          ...docSnap.data()
+        });
+      });
+
+      allLeads.sort((a, b) => {
+        const timeA = new Date(a.clickedAt || 0).getTime();
+        const timeB = new Date(b.clickedAt || 0).getTime();
+        return timeB - timeA;
+      });
+
+      applyFilters();
+    };
+
+    loadLeads();
+  </script>
+
+</body>
+</html>
