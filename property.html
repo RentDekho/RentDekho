@@ -230,16 +230,20 @@
     async function trackEvent(actionType) {
       const currentUser = JSON.parse(localStorage.getItem("rentdekhoCurrentUser") || "null");
 
-      await addDoc(collection(db, "leadEvents"), {
-        propertyId: propertyId,
-        ownerUserId: ownerUserId || "",
-        ownerPhone: fullPhoneNumber || "",
-        visitorUserId: currentUser?.userId || "guest",
-        visitorPhone: currentUser?.phone || "",
-        visitorName: currentUser?.name || "Guest",
-        actionType: actionType,
-        clickedAt: new Date().toISOString()
-      });
+     const currentUser = JSON.parse(localStorage.getItem("rentdekhoCurrentUser")) || {};
+
+await addDoc(collection(db, "leadEvents"), {
+  propertyId: propertyId,
+  actionType: "view_number",
+  clickedAt: new Date().toISOString(),
+
+  visitorUserId: currentUser.userId || "guest",
+  visitorName: currentUser.name || "Guest",
+  visitorPhone: currentUser.phone || "",
+
+  ownerUserId: data.ownerUserId || "",
+  ownerPhone: data.phone || ""
+});
     }
 
     window.revealPhone = async function() {
