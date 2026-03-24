@@ -73,19 +73,43 @@
 
     .filters{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap:12px;
       margin-bottom:20px;
     }
 
-    .filters input,
-    .filters select{
+    .filters input{
       width:100%;
       padding:12px;
       border:1px solid #ccc;
       border-radius:10px;
       font-size:14px;
       background:white;
+    }
+
+    .lead-section{
+      margin-bottom:28px;
+    }
+
+    .section-title{
+      font-size:22px;
+      font-weight:bold;
+      margin-bottom:14px;
+      padding:12px 16px;
+      border-radius:12px;
+      color:white;
+    }
+
+    .section-title.view{
+      background:#111184;
+    }
+
+    .section-title.contact{
+      background:#ff5e00;
+    }
+
+    .section-title.chat{
+      background:#16a34a;
     }
 
     .lead-list{
@@ -159,8 +183,8 @@
     }
 
     @media (max-width: 768px){
-      .filters{
-        grid-template-columns: 1fr;
+      body{
+        padding:14px;
       }
     }
   </style>
@@ -195,15 +219,22 @@
 
   <div class="filters">
     <input type="text" id="searchInput" placeholder="Search property ID / visitor / owner phone" oninput="applyFilters()">
-    <select id="actionFilter" onchange="applyFilters()">
-      <option value="">All Actions</option>
-      <option value="view_number">View Number</option>
-      <option value="contact_owner">Contact Owner</option>
-      <option value="chat_with_owner">Chat with Owner</option>
-    </select>
   </div>
 
-  <div id="leadList" class="lead-list"></div>
+  <div class="lead-section">
+    <div class="section-title contact">Contact Owner Leads</div>
+    <div id="contactLeadList" class="lead-list"></div>
+  </div>
+
+  <div class="lead-section">
+    <div class="section-title chat">Chat with Owner Leads</div>
+    <div id="chatLeadList" class="lead-list"></div>
+  </div>
+
+  <div class="lead-section">
+    <div class="section-title view">View Number Leads</div>
+    <div id="viewLeadList" class="lead-list"></div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -246,46 +277,45 @@
       document.getElementById("chatCount").innerText = chat;
     }
 
-    function renderLeads(leads){
-      const leadList = document.getElementById("leadList");
-      leadList.innerHTML = "";
+    function createLeadCard(lead){
+      const card = document.createElement("div");
+      card.className = `lead-card ${lead.actionType || ""}`;
+
+      card.innerHTML = `
+        <div class="lead-title">
+          <span class="badge ${lead.actionType || ""}">${getActionLabel(lead.actionType)}</span>
+        </div>
+
+        <div class="lead-row"><b>Property ID:</b> ${lead.propertyId || "N/A"}</div>
+        <div class="lead-row"><b>Visitor Name:</b> ${lead.visitorName || "Guest"}</div>
+        <div class="lead-row"><b>Visitor User ID:</b> ${lead.visitorUserId || "guest"}</div>
+        <div class="lead-row"><b>Visitor Phone:</b> ${lead.visitorPhone || "Not available"}</div>
+        <div class="lead-row"><b>Owner User ID:</b> ${lead.ownerUserId || "Not available"}</div>
+        <div class="lead-row"><b>Owner Phone:</b> ${lead.ownerPhone || "Not available"}</div>
+        <div class="lead-row"><b>Time:</b> ${formatTime(lead)}</div>
+      `;
+
+      return card;
+    }
+
+    function renderGroup(containerId, leads, emptyText){
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
 
       if(leads.length === 0){
-        leadList.innerHTML = `<div class="empty">No leads found.</div>`;
+        container.innerHTML = `<div class="empty">${emptyText}</div>`;
         return;
       }
 
       leads.forEach((lead) => {
-        const card = document.createElement("div");
-        card.className = `lead-card ${lead.actionType || ""}`;
-
-        card.innerHTML = `
-          <div class="lead-title">
-            <span class="badge ${lead.actionType || ""}">${getActionLabel(lead.actionType)}</span>
-          </div>
-
-          <div class="lead-row"><b>Property ID:</b> ${lead.propertyId || "N/A"}</div>
-          <div class="lead-row"><b>Visitor Name:</b> ${lead.visitorName || "Guest"}</div>
-          <div class="lead-row"><b>Visitor User ID:</b> ${lead.visitorUserId || "guest"}</div>
-          <div class="lead-row"><b>Visitor Phone:</b> ${lead.visitorPhone || "Not available"}</div>
-          <div class="lead-row"><b>Owner User ID:</b> ${lead.ownerUserId || "Not available"}</div>
-          <div class="lead-row"><b>Owner Phone:</b> ${lead.ownerPhone || "Not available"}</div>
-          <div class="lead-row"><b>Time:</b> ${formatTime(lead)}</div>
-        `;
-
-        leadList.appendChild(card);
+        container.appendChild(createLeadCard(lead));
       });
     }
 
     window.applyFilters = function(){
       const searchText = document.getElementById("searchInput").value.trim().toLowerCase();
-      const actionFilter = document.getElementById("actionFilter").value;
 
       let filteredLeads = [...allLeads];
-
-      if(actionFilter){
-        filteredLeads = filteredLeads.filter(item => item.actionType === actionFilter);
-      }
 
       if(searchText){
         filteredLeads = filteredLeads.filter(item => {
@@ -307,8 +337,15 @@
         });
       }
 
+      const contactLeads = filteredLeads.filter(item => item.actionType === "contact_owner");
+      const chatLeads = filteredLeads.filter(item => item.actionType === "chat_with_owner");
+      const viewLeads = filteredLeads.filter(item => item.actionType === "view_number");
+
       updateStats(filteredLeads);
-      renderLeads(filteredLeads);
+
+      renderGroup("contactLeadList", contactLeads, "No Contact Owner leads found.");
+      renderGroup("chatLeadList", chatLeads, "No Chat with Owner leads found.");
+      renderGroup("viewLeadList", viewLeads, "No View Number leads found.");
     };
 
     window.loadLeads = async function(){
