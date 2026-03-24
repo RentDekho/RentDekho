@@ -322,16 +322,6 @@
       text-align: center;
       font-weight: 600;
     }
-
-    @media (max-width: 768px) {
-      .hero h1 {
-        font-size: 28px;
-      }
-
-      .stats {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
   </style>
 </head>
 <body>
@@ -396,7 +386,6 @@
 
   <div id="loginModal">
     <h2>Login to RentDekho</h2>
-
     <input type="text" id="userName" placeholder="Your Name">
     <input type="text" id="phoneNumber" placeholder="+91 9876543210">
     <div id="recaptcha-container"></div>
@@ -618,10 +607,7 @@
       noDataMessage.innerText = "";
 
       properties.forEach((data) => {
-        const imageSrc = data.image
-          ? data.image
-          : "https://via.placeholder.com/400x220?text=No+Image";
-
+        const imageSrc = data.image ? data.image : "https://via.placeholder.com/400x220?text=No+Image";
         const locationText = data.address && data.city
           ? data.address + ", " + data.city
           : (data.address || data.city || "No Location");
@@ -693,7 +679,6 @@
       });
 
       const finalProperties = [...trendingProperties, ...normalProperties];
-
       renderProperties(finalProperties);
 
       if (selectedCategory && searchText) {
@@ -743,5 +728,4 @@
   </script>
 
 </body>
-</html> 
-bhai check karka bata final code thik haina. and usko pura dede ಮತ್ತೆ so that i know which one to replace with which one. nonsense मत करना and be careful this time
+</html>
