@@ -167,20 +167,6 @@
       font-weight:bold;
       margin-top:40px;
     }
-
-    @media (max-width: 768px){
-      .image-box img{
-        height:220px;
-      }
-
-      h1{
-        font-size:24px;
-      }
-
-      .phone-number{
-        font-size:20px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -189,7 +175,6 @@
 
   <div class="container">
     <a href="index.html" class="back-link">← Back to Home</a>
-
     <div id="propertyContainer"></div>
     <div id="errorMessage" class="error"></div>
   </div>
@@ -228,21 +213,19 @@
     }
 
     async function trackEvent(actionType) {
-      const currentUser = JSON.parse(localStorage.getItem("rentdekhoCurrentUser") || "null");
+      const currentUser = JSON.parse(localStorage.getItem("rentdekhoCurrentUser") || "null") || {};
 
-     const currentUser = JSON.parse(localStorage.getItem("rentdekhoCurrentUser")) || {};
-
-await addDoc(collection(db, "leadEvents"), {
-  propertyId: propertyId,
-  actionType: "view_number",
- clickedAt: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-  visitorUserId: currentUser.userId || "guest",
-  visitorName: currentUser.name || "Guest",
-  visitorPhone: currentUser.phone || "",
-
-  ownerUserId: data.ownerUserId || "",
-  ownerPhone: data.phone || ""
-});
+      await addDoc(collection(db, "leadEvents"), {
+        propertyId: propertyId,
+        ownerUserId: ownerUserId || "",
+        ownerPhone: fullPhoneNumber || "",
+        visitorUserId: currentUser.userId || "guest",
+        visitorPhone: currentUser.phone || "",
+        visitorName: currentUser.name || "Guest",
+        actionType: actionType,
+        clickedAt: new Date().toISOString(),
+        clickedAtIndia: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+      });
     }
 
     window.revealPhone = async function() {
@@ -293,7 +276,7 @@ await addDoc(collection(db, "leadEvents"), {
         const price = data.price || "N/A";
         const desc = data.desc || "No description available.";
         const trendingBadge = data.trending === true
-          ? `<div class="trending-badge"><span>🔥</span><span>Trending</span></div>`
+          ? `<div class="trending-badge">🔥 Trending</div>`
           : "";
 
         fullPhoneNumber = normalizePhone(data.phone || "");
@@ -314,7 +297,6 @@ await addDoc(collection(db, "leadEvents"), {
 
             <div class="content">
               <h1>${title}</h1>
-
               <div class="info">📍 ${locationText}</div>
               <div class="price">💰 ₹${price}</div>
               <div class="info">🏠 Type: ${type}</div>
