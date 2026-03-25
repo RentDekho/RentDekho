@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+  <script>
+  const ADMIN_PASSWORD = "RentDekhoAdmin123";
+  const enteredPassword = prompt("Enter admin password");
+
+  if (enteredPassword !== ADMIN_PASSWORD) {
+    alert("Wrong password");
+    window.location.href = "index.html";
+  }
+</script>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
