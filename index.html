@@ -285,7 +285,7 @@
     #loginModal {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.45);
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -299,8 +299,9 @@
       background: white;
       border-radius: 24px;
       padding: 28px 22px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.12);
       text-align: center;
+      border: 1px solid #e5e7eb;
     }
 
     .login-logo {
@@ -500,6 +501,10 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
+    provider.setCustomParameters({
+      prompt: "select_account"
+    });
+
     let allProperties = [];
     let selectedCategory = "";
 
@@ -553,7 +558,7 @@
         document.getElementById("content").style.filter = "none";
       } else {
         document.getElementById("loginModal").style.display = "flex";
-        document.getElementById("content").style.filter = "blur(5px)";
+        document.getElementById("content").style.filter = "none";
       }
 
       loadProperties();
