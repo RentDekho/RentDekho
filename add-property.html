@@ -107,6 +107,14 @@
       color: #666;
       margin-top: 4px;
     }
+
+    .phone-warning{
+      font-size: 13px;
+      color: red;
+      font-weight: bold;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -149,7 +157,9 @@
 
       <label for="phone">Phone Number</label>
       <input type="tel" id="phone" placeholder="Enter active phone number" required>
-      <div class="small-note">Same phone number cannot be listed twice</div>
+      <div class="phone-warning">
+        ⚠️ One phone number = only ONE active listing allowed. Agar same number use karoge to upload reject ho jayega.
+      </div>
 
       <label for="imageFile">Property Image</label>
       <input type="file" id="imageFile" accept="image/*" required>
@@ -334,14 +344,14 @@
       }
 
       submitBtn.disabled = true;
-      submitBtn.innerText = "Submitting...";
+      submitBtn.innerText = "Uploading...";
       statusDiv.innerText = "";
 
       try {
         const phoneExists = await isPhoneAlreadyListed(cleanPhone);
 
         if (phoneExists) {
-          statusDiv.innerText = "This phone number is already listed on RentDekho. You cannot list another property with the same number.";
+          statusDiv.innerText = "❌ Upload Failed: Is phone number se ek listing already active hai. Same number se dusra upload allowed nahi hai.";
           statusDiv.style.color = "red";
           submitBtn.disabled = false;
           submitBtn.innerText = "Submit Property";
@@ -380,10 +390,10 @@
           localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(currentUser));
         }
 
-        statusDiv.innerText = "Property submitted successfully! It is pending for approval.";
+        statusDiv.innerText = "✅ Property successfully submit ho gaya! Approval ke baad live hoga.";
         statusDiv.style.color = "green";
 
-        alert("Property submitted successfully! It is pending for approval.");
+        alert("Property successfully submit ho gaya! Approval ke baad live hoga.");
 
         form.reset();
         preview.style.display = "none";
