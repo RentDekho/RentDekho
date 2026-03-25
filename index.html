@@ -255,48 +255,6 @@
       margin-top: 12px;
     }
 
-    #loginModal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      width: 92%;
-      max-width: 340px;
-      padding: 20px;
-      border-radius: 18px;
-      z-index: 1000;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.28);
-      text-align: center;
-    }
-
-    #loginModal h2 {
-      margin-top: 0;
-      color: #111184;
-    }
-
-    #loginModal input,
-    #loginModal button {
-      width: 100%;
-      padding: 11px;
-      margin-top: 10px;
-      border-radius: 10px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    #loginModal input {
-      border: 1px solid #ccc;
-    }
-
-    #loginModal button {
-      border: none;
-      background: #111184;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
     #content {
       transition: filter 0.3s;
     }
@@ -321,6 +279,126 @@
       font-size: 13px;
       text-align: center;
       font-weight: 600;
+    }
+
+    /* LOGIN MODAL */
+    #loginModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: white;
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      text-align: center;
+    }
+
+    .login-logo {
+      font-size: 34px;
+      font-weight: 800;
+      color: #111184;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .login-card h2 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      color: #111827;
+    }
+
+    .login-subtext {
+      margin: 0 0 18px;
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #userName {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      font-size: 15px;
+      margin-bottom: 14px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    #userName:focus {
+      border-color: #111184;
+    }
+
+    .google-login-btn {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #111827;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .google-login-btn:hover {
+      background: #f9fafb;
+    }
+
+    .google-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #ea4335;
+      font-size: 15px;
+    }
+
+    .guest-btn {
+      width: 100%;
+      border: none;
+      background: #111184;
+      color: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .guest-btn:hover {
+      background: #0d0d66;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
   </style>
 </head>
@@ -385,22 +463,27 @@
   </div>
 
   <div id="loginModal">
-    <h2>Login to RentDekho</h2>
-    <input type="text" id="userName" placeholder="Your Name">
-    <input type="text" id="phoneNumber" placeholder="+91 9876543210">
-    <div id="recaptcha-container"></div>
+    <div class="login-card">
+      <div class="login-logo">RentDekho</div>
+      <h2>Login</h2>
+      <p class="login-subtext">Find your next home easily</p>
 
-    <button onclick="sendOTP()">Send OTP</button>
-    <input type="text" id="otp" placeholder="Enter OTP">
-    <button onclick="verifyOTP()">Verify OTP</button>
+      <input type="text" id="userName" placeholder="Enter your name">
 
-    <hr>
-    <button onclick="googleLogin()">Login with Google</button>
+      <button class="google-login-btn" onclick="googleLogin()">
+        <span class="google-icon">G</span>
+        <span>Continue with Google</span>
+      </button>
+
+      <button class="guest-btn" onclick="guestLogin()">
+        Continue as Guest
+      </button>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -420,10 +503,6 @@
     let allProperties = [];
     let selectedCategory = "";
 
-    function normalizePhone(phone) {
-      return String(phone || "").replace(/\D/g, "").trim();
-    }
-
     function closeLogin() {
       document.getElementById("loginModal").style.display = "none";
       document.getElementById("content").style.filter = "none";
@@ -434,31 +513,7 @@
       localStorage.setItem("rentdekhoCurrentUser", JSON.stringify(userData));
     }
 
-    async function createOrUpdateUserByPhone(phone, name) {
-      const cleanPhone = normalizePhone(phone);
-      const userId = "user_" + cleanPhone;
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          userId: userId,
-          name: name || "User",
-          phone: cleanPhone,
-          category: "tenant",
-          planType: "free",
-          paymentReceived: false,
-          createdAt: new Date().toISOString()
-        });
-      }
-
-      const finalSnap = await getDoc(userRef);
-      const finalData = finalSnap.data();
-      await saveCurrentUser(finalData);
-      return finalData;
-    }
-
-    async function createOrUpdateGoogleUser(user) {
+    async function createOrUpdateGoogleUser(user, typedName = "") {
       const fallbackPhone = user.email ? ("google_" + user.email.replace(/[^a-zA-Z0-9]/g, "_")) : user.uid;
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
@@ -466,7 +521,7 @@
       if (!userSnap.exists()) {
         await setDoc(userRef, {
           userId: user.uid,
-          name: user.displayName || "Google User",
+          name: typedName || user.displayName || "Google User",
           phone: fallbackPhone,
           category: "tenant",
           planType: "free",
@@ -474,6 +529,14 @@
           email: user.email || "",
           createdAt: new Date().toISOString()
         });
+      } else if (typedName) {
+        const existing = userSnap.data();
+        if (!existing.name || existing.name === "Google User") {
+          await setDoc(userRef, {
+            ...existing,
+            name: typedName
+          });
+        }
       }
 
       const finalSnap = await getDoc(userRef);
@@ -489,13 +552,9 @@
         document.getElementById("loginModal").style.display = "none";
         document.getElementById("content").style.filter = "none";
       } else {
-        document.getElementById("loginModal").style.display = "block";
+        document.getElementById("loginModal").style.display = "flex";
         document.getElementById("content").style.filter = "blur(5px)";
       }
-
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible"
-      });
 
       loadProperties();
 
@@ -508,10 +567,17 @@
     };
 
     window.googleLogin = async function () {
+      const typedName = document.getElementById("userName").value.trim();
+
+      if (!typedName) {
+        alert("Please enter your name first");
+        return;
+      }
+
       try {
         const result = await signInWithPopup(auth, provider);
-        const savedUser = await createOrUpdateGoogleUser(result.user);
-        alert("Welcome " + (savedUser.name || "User"));
+        const savedUser = await createOrUpdateGoogleUser(result.user, typedName);
+        alert("Welcome " + (savedUser.name || typedName || "User"));
         closeLogin();
       } catch (error) {
         console.error("Google login error:", error);
@@ -519,52 +585,19 @@
       }
     };
 
-    window.confirmationResult = null;
+    window.guestLogin = function () {
+      const typedName = document.getElementById("userName").value.trim() || "Guest";
 
-    window.sendOTP = async function () {
-      const name = document.getElementById("userName").value.trim();
-      const phone = document.getElementById("phoneNumber").value.trim();
+      localStorage.setItem("rentdekhoCurrentUser", JSON.stringify({
+        userId: "guest_user",
+        name: typedName,
+        phone: "guest_user",
+        category: "tenant",
+        planType: "free"
+      }));
 
-      if (!name) {
-        alert("Please enter your name");
-        return;
-      }
-
-      if (!phone) {
-        alert("Please enter phone number");
-        return;
-      }
-
-      signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
-        .then((result) => {
-          window.confirmationResult = result;
-          alert("OTP Sent");
-        })
-        .catch((error) => {
-          console.error("OTP send error:", error);
-          alert("OTP send failed");
-        });
-    };
-
-    window.verifyOTP = async function () {
-      const otp = document.getElementById("otp").value;
-      const name = document.getElementById("userName").value.trim();
-      const phone = document.getElementById("phoneNumber").value.trim();
-
-      if (!window.confirmationResult) {
-        alert("Pehle OTP send karo");
-        return;
-      }
-
-      try {
-        await window.confirmationResult.confirm(otp);
-        await createOrUpdateUserByPhone(phone, name);
-        alert("Login Successful");
-        closeLogin();
-      } catch (error) {
-        console.error("OTP verify error:", error);
-        alert("Invalid OTP");
-      }
+      alert("Welcome " + typedName);
+      closeLogin();
     };
 
     async function loadProperties() {
@@ -575,12 +608,12 @@
         const querySnapshot = await getDocs(collection(db, "properties"));
         allProperties = [];
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
 
           if ((data.status || "").trim().toLowerCase() === "approved") {
             allProperties.push({
-              id: doc.id,
+              id: docSnap.id,
               ...data
             });
           }
